@@ -30,6 +30,10 @@ class AWSService(structure_models.Service):
             path_to_scope='service_project_link.service'
         )
 
+    @classmethod
+    def get_url_name(cls):
+        return 'aws'
+
 
 class AWSServiceProjectLink(structure_models.ServiceProjectLink):
     service = models.ForeignKey(AWSService)
@@ -38,10 +42,18 @@ class AWSServiceProjectLink(structure_models.ServiceProjectLink):
         verbose_name = 'AWS service project link'
         verbose_name_plural = 'AWS service project links'
 
+    @classmethod
+    def get_url_name(cls):
+        return 'aws-spl'
+
 
 class Region(structure_models.GeneralServiceProperty):
     class Meta:
         ordering = ['name']
+
+    @classmethod
+    def get_url_name(cls):
+        return 'aws-region'
 
 
 @python_2_unicode_compatible
@@ -54,6 +66,10 @@ class Image(structure_models.GeneralServiceProperty):
     def __str__(self):
         return '{0} | {1}'.format(self.name, self.region.name)
 
+    @classmethod
+    def get_url_name(cls):
+        return 'aws-image'
+
 
 class Size(structure_models.GeneralServiceProperty):
     class Meta:
@@ -64,6 +80,10 @@ class Size(structure_models.GeneralServiceProperty):
     ram = models.PositiveIntegerField(help_text='Memory size in MiB')
     disk = models.PositiveIntegerField(help_text='Disk size in MiB')
     price = models.DecimalField('Hourly price rate', default=0, max_digits=11, decimal_places=5)
+
+    @classmethod
+    def get_url_name(cls):
+        return 'aws-size'
 
 
 class Instance(structure_models.VirtualMachineMixin, structure_models.Resource, RuntimeStateMixin):
@@ -84,6 +104,10 @@ class Instance(structure_models.VirtualMachineMixin, structure_models.Resource, 
     def human_readable_state(self):
         return force_text(dict(self.States.CHOICES)[self.state])
 
+    @classmethod
+    def get_url_name(cls):
+        return 'aws-instance'
+
 
 class Volume(RuntimeStateMixin, structure_models.NewResource):
     service_project_link = models.ForeignKey(
@@ -99,3 +123,7 @@ class Volume(RuntimeStateMixin, structure_models.NewResource):
     volume_type = models.CharField(max_length=8, choices=VOLUME_TYPES)
     device = models.CharField(max_length=128, blank=True, null=True)
     instance = models.ForeignKey(Instance, blank=True, null=True)
+
+    @classmethod
+    def get_url_name(cls):
+        return 'aws-volume'
