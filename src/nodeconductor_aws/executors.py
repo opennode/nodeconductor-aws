@@ -87,7 +87,7 @@ class InstanceCreateExecutor(executors.CreateExecutor):
             core_tasks.BackendMethodTask().si(
                 serialized_instance,
                 backend_method='create_instance',
-                state_transition='begin_provisioning',
+                state_transition='begin_creating',
                 **kwargs),
             PollRuntimeStateTask().si(
                 serialized_instance,
@@ -107,7 +107,7 @@ class InstanceCreateExecutor(executors.CreateExecutor):
         serialized_volume = core_utils.serialize_instance(instance.volume_set.first())
         return chain(
             core_tasks.StateTransitionTask().si(serialized_volume, state_transition='set_ok'),
-            core_tasks.StateTransitionTask().si(serialized_instance, state_transition='set_online')
+            core_tasks.StateTransitionTask().si(serialized_instance, state_transition='set_ok')
         )
 
     @classmethod
@@ -129,7 +129,7 @@ class InstanceResizeExecutor(executors.ActionExecutor):
             core_tasks.BackendMethodTask().si(
                 serialized_instance,
                 backend_method='resize_instance',
-                state_transition='begin_resizing',
+                state_transition='begin_updating',
                 size_id=size.backend_id
             ),
             PollRuntimeStateTask().si(
@@ -142,4 +142,4 @@ class InstanceResizeExecutor(executors.ActionExecutor):
 
     @classmethod
     def get_success_signature(cls, instance, serialized_instance, **kwargs):
-        return core_tasks.StateTransitionTask().si(serialized_instance, state_transition='set_resized')
+        return core_tasks.StateTransitionTask().si(serialized_instance, state_transition='set_ok')
