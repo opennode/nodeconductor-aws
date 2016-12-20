@@ -1,7 +1,7 @@
 from django.db import transaction
+from libcloud.compute.types import NodeState
 from rest_framework import serializers
 
-from extension import NodeState
 from nodeconductor.core import serializers as core_serializers
 from nodeconductor.structure import serializers as structure_serializers
 
