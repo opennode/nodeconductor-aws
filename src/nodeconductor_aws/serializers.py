@@ -1,7 +1,7 @@
 from django.db import transaction
-from libcloud.compute.types import NodeState
 from rest_framework import serializers
 
+from extension import NodeState
 from nodeconductor.core import serializers as core_serializers
 from nodeconductor.structure import serializers as structure_serializers
 
@@ -203,15 +203,7 @@ class InstanceImportSerializer(AWSImportSerializerMixin,
         return super(InstanceImportSerializer, self).create(validated_data)
 
 
-class NodeStateValidationMixin(object):
-    valid_states = [getattr(NodeState, name) for name in dir(NodeState) if not name.startswith('_')]
-
-    def valid_node_state(self, state):
-        return state in self.valid_states
-
-
 class InstanceResizeSerializer(structure_serializers.PermissionFieldFilteringMixin,
-                               NodeStateValidationMixin,
                                serializers.Serializer):
     size = serializers.HyperlinkedRelatedField(
         view_name='aws-size-detail',
@@ -243,8 +235,11 @@ class InstanceResizeSerializer(structure_serializers.PermissionFieldFilteringMix
         if size.disk < self.instance.disk:
             raise serializers.ValidationError("New disk size should be greater than the previous value")
 
-        if not self.valid_node_state(instance.runtime_state):
-            raise serializers.ValidationError("Instance runtime state must be in a valid Node state.")
+        if instance.runtime_state not in [NodeState.TERMINATED,
+                                          NodeState.STOPED,
+                                          NodeState.SUSPENDED,
+                                          NodeState.PAUSED]:
+            raise serializers.ValidationError("Instance runtime state must be in one of offline states.")
 
         return attrs
 
@@ -332,7 +327,6 @@ class VolumeImportSerializer(AWSImportSerializerMixin,
 
 
 class VolumeAttachSerializer(structure_serializers.PermissionFieldFilteringMixin,
-                             NodeStateValidationMixin,
                              serializers.Serializer):
     instance = serializers.HyperlinkedRelatedField(
         view_name='aws-instance-detail',
@@ -365,8 +359,11 @@ class VolumeAttachSerializer(structure_serializers.PermissionFieldFilteringMixin
         if volume.region != instance.region:
             raise serializers.ValidationError("Instance is not within the same region.")
 
-        if not self.valid_node_state(instance.runtime_state):
-            raise serializers.ValidationError("Instance runtime state must be in a valid Node state.")
+        if instance.runtime_state not in [NodeState.TERMINATED,
+                                          NodeState.STOPED,
+                                          NodeState.SUSPENDED,
+                                          NodeState.PAUSED]:
+            raise serializers.ValidationError("Instance runtime state must be in one of offline states.")
 
         return attrs
 
