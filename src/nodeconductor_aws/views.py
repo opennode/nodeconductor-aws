@@ -79,7 +79,7 @@ class InstanceViewSet(structure_views.BaseResourceViewSet):
         )
 
     @decorators.detail_route(methods=['post'])
-    @structure_views.safe_operation(valid_state=models.Instance.States.OFFLINE)
+    @structure_views.safe_operation(valid_state=models.Instance.States.OK)
     def resize(self, request, instance, uuid=None):
         serializer = self.get_serializer(instance, data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -106,8 +106,6 @@ class VolumeViewSet(six.with_metaclass(structure_views.ResourceViewMetaclass,
     def detach(self, request, volume, uuid=None):
         if not volume.instance:
             raise exceptions.ValidationError('Volume is already detached.')
-        elif volume.instance.state != models.Instance.States.OFFLINE:
-            raise IncorrectStateException('Volume instance must be in offline state.')
 
         executors.VolumeDetachExecutor.execute(volume)
 

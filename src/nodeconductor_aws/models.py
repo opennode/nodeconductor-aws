@@ -86,7 +86,7 @@ class Size(structure_models.GeneralServiceProperty):
         return 'aws-size'
 
 
-class Instance(structure_models.VirtualMachineMixin, structure_models.Resource, RuntimeStateMixin):
+class Instance(structure_models.VirtualMachineMixin, structure_models.NewResource, RuntimeStateMixin):
     service_project_link = models.ForeignKey(
         AWSServiceProjectLink, related_name='instances', on_delete=models.PROTECT)
 
