@@ -3,7 +3,6 @@ import six
 from rest_framework import decorators, exceptions, viewsets
 
 from nodeconductor.core.views import StateExecutorViewSet
-from nodeconductor.core.exceptions import IncorrectStateException
 from nodeconductor.structure import views as structure_views
 
 from . import filters, models, serializers, executors
