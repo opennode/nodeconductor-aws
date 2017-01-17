@@ -1,4 +1,5 @@
 from django.db import transaction
+from libcloud.compute.types import NodeState
 from rest_framework import serializers
 
 from nodeconductor.core import serializers as core_serializers
@@ -223,6 +224,7 @@ class InstanceResizeSerializer(structure_serializers.PermissionFieldFilteringMix
 
     def validate(self, attrs):
         size = attrs['size']
+        instance = attrs['instance']
 
         if not size.regions.filter(uuid=self.instance.region.uuid).exists():
             raise serializers.ValidationError("New size is not within the same region.")
@@ -232,6 +234,12 @@ class InstanceResizeSerializer(structure_serializers.PermissionFieldFilteringMix
 
         if size.disk < self.instance.disk:
             raise serializers.ValidationError("New disk size should be greater than the previous value")
+
+        if instance.runtime_state not in [NodeState.TERMINATED,
+                                          NodeState.STOPED,
+                                          NodeState.SUSPENDED,
+                                          NodeState.PAUSED]:
+            raise serializers.ValidationError("Instance runtime state must be in one of offline states.")
 
         return attrs
 
@@ -351,8 +359,11 @@ class VolumeAttachSerializer(structure_serializers.PermissionFieldFilteringMixin
         if volume.region != instance.region:
             raise serializers.ValidationError("Instance is not within the same region.")
 
-        if instance.state != models.Instance.States.OFFLINE:
-            raise serializers.ValidationError("Instance must be in offline state.")
+        if instance.runtime_state not in [NodeState.TERMINATED,
+                                          NodeState.STOPED,
+                                          NodeState.SUSPENDED,
+                                          NodeState.PAUSED]:
+            raise serializers.ValidationError("Instance runtime state must be in one of offline states.")
 
         return attrs
 

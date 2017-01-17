@@ -572,25 +572,12 @@ class AWSBackend(AWSBaseBackend):
             'disk': self.gb2mb(sum(volumes.values())),
             'created': dateparse.parse_datetime(instance.extra['launch_time']),
             'region': region.uuid.hex,
-            'state': self._get_instance_state(instance.state),
+            'state': models.Instance.States.OK,
             'external_ips': external_ips,
             'flavor_name': instance.extra.get('instance_type'),
-            'type': SupportedServices.get_name_for_model(models.Instance)
+            'type': SupportedServices.get_name_for_model(models.Instance),
+            'runtime_state': instance.state
         }
-
-    def _get_instance_state(self, state):
-        aws_to_nodeconductor = {
-            NodeState.RUNNING: models.Instance.States.ONLINE,
-            NodeState.REBOOTING: models.Instance.States.RESTARTING,
-            NodeState.TERMINATED: models.Instance.States.OFFLINE,
-            NodeState.PENDING: models.Instance.States.PROVISIONING,
-            NodeState.STOPPED: models.Instance.States.OFFLINE,
-            NodeState.SUSPENDED: models.Instance.States.OFFLINE,
-            NodeState.PAUSED: models.Instance.States.OFFLINE,
-            NodeState.ERROR: models.Instance.States.ERRED
-        }
-
-        return aws_to_nodeconductor.get(state, models.Instance.States.ERRED)
 
     def get_manager(self, instance):
         return self._get_api(instance.region.backend_id)
