@@ -23,7 +23,6 @@ class ServiceSerializer(core_serializers.ExtraFieldOptionsMixin,
 
     class Meta(structure_serializers.BaseServiceSerializer.Meta):
         model = models.AWSService
-        view_name = 'aws-detail'
         extra_field_options = {
             'username': {
                 'label': 'Access key ID',
@@ -45,7 +44,7 @@ class RegionSerializer(structure_serializers.BasePropertySerializer):
         model = models.Region
         fields = ('url', 'uuid', 'name')
         extra_kwargs = {
-            'url': {'lookup_field': 'uuid', 'view_name': 'aws-region-detail'}
+            'url': {'lookup_field': 'uuid'}
         }
 
 
@@ -55,7 +54,7 @@ class ImageSerializer(structure_serializers.BasePropertySerializer):
         model = models.Image
         fields = ('url', 'uuid', 'name', 'region')
         extra_kwargs = {
-            'url': {'lookup_field': 'uuid', 'view_name': 'aws-image-detail'}
+            'url': {'lookup_field': 'uuid'}
         }
 
     region = RegionSerializer(read_only=True)
@@ -67,7 +66,7 @@ class SizeSerializer(structure_serializers.BasePropertySerializer):
         model = models.Size
         fields = ('url', 'uuid', 'name', 'cores', 'ram', 'disk', 'regions', 'description')
         extra_kwargs = {
-            'url': {'lookup_field': 'uuid', 'view_name': 'aws-size-detail'}
+            'url': {'lookup_field': 'uuid'}
         }
 
     # AWS expose a more technical backend_id as a name. AWS's short codes are more popular
@@ -80,7 +79,6 @@ class ServiceProjectLinkSerializer(structure_serializers.BaseServiceProjectLinkS
 
     class Meta(structure_serializers.BaseServiceProjectLinkSerializer.Meta):
         model = models.AWSServiceProjectLink
-        view_name = 'aws-spl-detail'
         extra_kwargs = {
             'service': {'lookup_field': 'uuid', 'view_name': 'aws-detail'},
         }
@@ -127,7 +125,6 @@ class InstanceSerializer(structure_serializers.VirtualMachineSerializer):
 
     class Meta(structure_serializers.VirtualMachineSerializer.Meta):
         model = models.Instance
-        view_name = 'aws-instance-detail'
         fields = structure_serializers.VirtualMachineSerializer.Meta.fields + (
             'region', 'image', 'size'
         )
@@ -180,7 +177,6 @@ class InstanceImportSerializer(AWSImportSerializerMixin,
                                structure_serializers.BaseResourceImportSerializer):
     class Meta(structure_serializers.BaseResourceImportSerializer.Meta):
         model = models.Instance
-        view_name = 'aws-instance-detail'
 
     def create(self, validated_data):
         backend = self.context['service'].get_backend()
@@ -272,8 +268,6 @@ class VolumeSerializer(structure_serializers.BaseResourceSerializer):
 
     class Meta(structure_serializers.BaseResourceSerializer.Meta):
         model = models.Volume
-        view_name = 'aws-volume-detail'
-
         protected_fields = structure_serializers.BaseResourceSerializer.Meta.fields + (
             'size', 'region', 'volume_type'
         )
@@ -293,7 +287,6 @@ class VolumeImportSerializer(AWSImportSerializerMixin,
                              structure_serializers.BaseResourceImportSerializer):
     class Meta(structure_serializers.BaseResourceImportSerializer.Meta):
         model = models.Volume
-        view_name = 'aws-volume-detail'
 
     def create(self, validated_data):
         backend = self.context['service'].get_backend()
@@ -360,7 +353,7 @@ class VolumeAttachSerializer(structure_serializers.PermissionFieldFilteringMixin
             raise serializers.ValidationError("Instance is not within the same region.")
 
         if instance.runtime_state not in [NodeState.TERMINATED,
-                                          NodeState.STOPED,
+                                          NodeState.STOPPED,
                                           NodeState.SUSPENDED,
                                           NodeState.PAUSED]:
             raise serializers.ValidationError("Instance runtime state must be in one of offline states.")
