@@ -36,6 +36,7 @@ class AmazonServiceProjectLinkViewSet(structure_views.BaseServiceProjectLinkView
 class RegionViewSet(structure_views.BaseServicePropertyViewSet):
     queryset = models.Region.objects.all()
     serializer_class = serializers.RegionSerializer
+    filter_class = filters.RegionFilter
     lookup_field = 'uuid'
 
 
