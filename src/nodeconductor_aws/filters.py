@@ -21,3 +21,9 @@ class SizeFilter(structure_filters.BaseServicePropertyFilter):
         fields = structure_filters.BaseServicePropertyFilter.Meta.fields + ('region',)
 
     region = django_filters.UUIDFilter(name='regions__uuid')
+
+
+class RegionFilter(structure_filters.BaseServicePropertyFilter):
+
+    class Meta(structure_filters.BaseServicePropertyFilter.Meta):
+        model = models.Region
