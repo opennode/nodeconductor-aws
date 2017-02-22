@@ -11,7 +11,6 @@ class AWSServiceFactory(factory.DjangoModelFactory):
     class Meta(object):
         model = models.AWSService
 
-    name = factory.Sequence(lambda n: 'AWS service%s' % n)
     settings = factory.SubFactory(structure_factories.ServiceSettingsFactory, type='Amazon')
     customer = factory.SubFactory(structure_factories.CustomerFactory)
 
