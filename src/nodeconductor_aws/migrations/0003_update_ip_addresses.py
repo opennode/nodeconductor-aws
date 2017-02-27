@@ -15,7 +15,7 @@ def copy_external_ips(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('nodeconductor_aws', '0001_initial'),
+        ('nodeconductor_aws', '0002_remove_awsservice_name'),
     ]
 
     operations = [
