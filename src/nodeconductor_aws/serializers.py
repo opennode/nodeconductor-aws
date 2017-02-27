@@ -187,7 +187,7 @@ class InstanceImportSerializer(AWSImportSerializerMixin,
                 {'backend_id': "Can't find instance with ID %s" % validated_data['backend_id']})
 
         validated_data['name'] = instance['name']
-        validated_data['external_ips'] = instance['external_ips']
+        validated_data['public_ips'] = instance['public_ips']
         validated_data['cores'] = instance['cores']
         validated_data['ram'] = instance['ram']
         validated_data['disk'] = instance['disk']

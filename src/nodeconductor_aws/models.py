@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible, force_text
+from jsonfield import JSONField
 from libcloud.compute.drivers.ec2 import REGION_DETAILS
 
 from nodeconductor.core.models import RuntimeStateMixin
@@ -91,10 +92,20 @@ class Instance(structure_models.VirtualMachineMixin, structure_models.NewResourc
         AWSServiceProjectLink, related_name='instances', on_delete=models.PROTECT)
 
     region = models.ForeignKey(Region)
+    public_ips = JSONField(default=[], help_text='List of public IP addresses', blank=True)
+    private_ips = JSONField(default=[], help_text='List of private IP addresses', blank=True)
+
+    @property
+    def external_ips(self):
+        return self.public_ips
+
+    @property
+    def internal_ips(self):
+        return self.private_ips
 
     def detect_coordinates(self):
         if self.external_ips:
-            return get_coordinates_by_ip(self.external_ips)
+            return get_coordinates_by_ip(self.external_ips[0])
         region = self.region.backend_id
         endpoint = REGION_DETAILS[region]['endpoint']
         return get_coordinates_by_ip(endpoint)

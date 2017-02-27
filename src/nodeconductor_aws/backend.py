@@ -562,7 +562,6 @@ class AWSBackend(AWSBaseBackend):
 
         # libcloud is a funny buggy thing, put all required info here
         instance_type = self.get_size(instance.extra['instance_type'], manager)
-        external_ips = instance.public_ips and instance.public_ips[0] or None
 
         return {
             'id': instance.id,
@@ -573,7 +572,7 @@ class AWSBackend(AWSBaseBackend):
             'created': dateparse.parse_datetime(instance.extra['launch_time']),
             'region': region.uuid.hex,
             'state': models.Instance.States.OK,
-            'external_ips': external_ips,
+            'public_ips': instance.public_ips,
             'flavor_name': instance.extra.get('instance_type'),
             'type': SupportedServices.get_name_for_model(models.Instance),
             'runtime_state': instance.state
