@@ -102,9 +102,9 @@ def set_online(instance_uuid, transition_entity=None):
     backend = instance.get_backend()
     manager = backend.get_manager(instance)
     backend_instance = manager.get_node(instance.backend_id)
-    instance.external_ips = backend_instance.public_ips[0]
+    instance.public_ips = backend_instance.public_ips
 
-    instance.save(update_fields=['start_time', 'external_ips'])
+    instance.save(update_fields=['start_time', 'public_ips'])
 
 
 @shared_task
