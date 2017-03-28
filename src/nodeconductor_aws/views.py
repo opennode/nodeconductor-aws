@@ -54,7 +54,7 @@ class SizeViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = 'uuid'
 
 
-class InstanceViewSet(structure_views.BaseResourceViewSet):
+class InstanceViewSet(structure_views.VirtualMachineViewSet):
     queryset = models.Instance.objects.all()
     serializer_class = serializers.InstanceSerializer
 
