@@ -637,7 +637,8 @@ class AWSBackend(AWSBaseBackend):
             manager = self._get_api(region.backend_id)
             try:
                 instance = manager.get_node(instance_id)
-            except:
+            # XXX: it is not a good idea to except all errors here. Manager-specific error should be excepted.
+            except:  # nosec
                 # Instance not found
                 pass
             else:
@@ -649,7 +650,8 @@ class AWSBackend(AWSBaseBackend):
             manager = self._get_api(region.backend_id)
             try:
                 volume = manager.get_volume(volume_id)
-            except:
+            # XXX: it is not a good idea to except all errors here. Manager-specific error should be excepted.
+            except:  # nosec
                 # Volume not found
                 pass
             else:
