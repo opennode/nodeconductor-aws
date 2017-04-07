@@ -71,6 +71,10 @@ class Image(structure_models.GeneralServiceProperty):
     def get_url_name(cls):
         return 'aws-image'
 
+    @classmethod
+    def get_backend_fields(cls):
+        return super(Image, cls).get_backend_fields() + ('region',)
+
 
 class Size(structure_models.GeneralServiceProperty):
     class Meta:
@@ -85,6 +89,10 @@ class Size(structure_models.GeneralServiceProperty):
     @classmethod
     def get_url_name(cls):
         return 'aws-size'
+
+    @classmethod
+    def get_backend_fields(cls):
+        return super(Size, cls).get_backend_fields() + ('cores', 'ram', 'disk', 'price', 'regions')
 
 
 class Instance(structure_models.VirtualMachineMixin, structure_models.NewResource, RuntimeStateMixin):
@@ -119,6 +127,10 @@ class Instance(structure_models.VirtualMachineMixin, structure_models.NewResourc
     def get_url_name(cls):
         return 'aws-instance'
 
+    @classmethod
+    def get_backend_fields(cls):
+        return super(Instance, cls).get_backend_fields() + ('runtime_state',)
+
 
 class Volume(RuntimeStateMixin, structure_models.NewResource):
     service_project_link = models.ForeignKey(
@@ -138,3 +150,7 @@ class Volume(RuntimeStateMixin, structure_models.NewResource):
     @classmethod
     def get_url_name(cls):
         return 'aws-volume'
+
+    @classmethod
+    def get_backend_fields(cls):
+        return super(Volume, cls).get_backend_fields() + ('name', 'device', 'size', 'volume_type', 'runtime_state')
