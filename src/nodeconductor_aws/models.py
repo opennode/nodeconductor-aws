@@ -87,7 +87,7 @@ class Size(structure_models.GeneralServiceProperty):
         return 'aws-size'
 
 
-class Instance(structure_models.VirtualMachineMixin, structure_models.NewResource, RuntimeStateMixin):
+class Instance(structure_models.VirtualMachine):
     service_project_link = models.ForeignKey(
         AWSServiceProjectLink, related_name='instances', on_delete=models.PROTECT)
 
@@ -118,6 +118,10 @@ class Instance(structure_models.VirtualMachineMixin, structure_models.NewResourc
     @classmethod
     def get_url_name(cls):
         return 'aws-instance'
+
+    @classmethod
+    def get_active_state(cls):
+        return 'running'
 
 
 class Volume(RuntimeStateMixin, structure_models.NewResource):
