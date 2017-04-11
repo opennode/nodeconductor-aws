@@ -17,8 +17,8 @@ class AWSService(structure_models.Service):
         structure_models.Project, related_name='aws_services', through='AWSServiceProjectLink')
 
     class Meta(structure_models.Service.Meta):
-        verbose_name = 'AWS service'
-        verbose_name_plural = 'AWS services'
+        verbose_name = 'AWS provider'
+        verbose_name_plural = 'AWS providers'
 
     class Quotas(QuotaModelMixin.Quotas):
         instance_count = CounterQuotaField(
@@ -40,8 +40,8 @@ class AWSServiceProjectLink(structure_models.ServiceProjectLink):
     service = models.ForeignKey(AWSService)
 
     class Meta(structure_models.ServiceProjectLink.Meta):
-        verbose_name = 'AWS service project link'
-        verbose_name_plural = 'AWS service project links'
+        verbose_name = 'AWS provider project link'
+        verbose_name_plural = 'AWS provider project links'
 
     @classmethod
     def get_url_name(cls):
