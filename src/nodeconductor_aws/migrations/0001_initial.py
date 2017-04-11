@@ -33,8 +33,8 @@ class Migration(migrations.Migration):
             ],
             options={
                 'abstract': False,
-                'verbose_name': 'AWS service',
-                'verbose_name_plural': 'AWS services',
+                'verbose_name': 'AWS provider',
+                'verbose_name_plural': 'AWS providers',
             },
             bases=(nodeconductor.core.models.DescendantMixin, nodeconductor.logging.loggers.LoggableMixin, models.Model),
         ),
@@ -47,8 +47,8 @@ class Migration(migrations.Migration):
             ],
             options={
                 'abstract': False,
-                'verbose_name': 'AWS service project link',
-                'verbose_name_plural': 'AWS service project links',
+                'verbose_name': 'AWS provider project link',
+                'verbose_name_plural': 'AWS provider project links',
             },
             bases=(nodeconductor.core.models.DescendantMixin, nodeconductor.logging.loggers.LoggableMixin, models.Model),
         ),
