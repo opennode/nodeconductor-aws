@@ -95,7 +95,7 @@ class Size(structure_models.GeneralServiceProperty):
         return super(Size, cls).get_backend_fields() + ('cores', 'ram', 'disk', 'price', 'regions')
 
 
-class Instance(structure_models.VirtualMachineMixin, structure_models.NewResource, RuntimeStateMixin):
+class Instance(structure_models.VirtualMachine):
     service_project_link = models.ForeignKey(
         AWSServiceProjectLink, related_name='instances', on_delete=models.PROTECT)
 
@@ -130,6 +130,14 @@ class Instance(structure_models.VirtualMachineMixin, structure_models.NewResourc
     @classmethod
     def get_backend_fields(cls):
         return super(Instance, cls).get_backend_fields() + ('runtime_state',)
+
+    @classmethod
+    def get_online_state(cls):
+        return 'running'
+
+    @classmethod
+    def get_offline_state(cls):
+        return 'stopped'
 
 
 class Volume(RuntimeStateMixin, structure_models.NewResource):
