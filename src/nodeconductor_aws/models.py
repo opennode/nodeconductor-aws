@@ -132,8 +132,12 @@ class Instance(structure_models.VirtualMachine):
         return super(Instance, cls).get_backend_fields() + ('runtime_state',)
 
     @classmethod
-    def get_active_state(cls):
+    def get_online_state(cls):
         return 'running'
+
+    @classmethod
+    def get_offline_state(cls):
+        return 'stopped'
 
 
 class Volume(RuntimeStateMixin, structure_models.NewResource):
