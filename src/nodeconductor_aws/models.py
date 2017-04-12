@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible, force_text
+from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 from libcloud.compute.drivers.ec2 import REGION_DETAILS
 
@@ -102,6 +102,7 @@ class Instance(structure_models.VirtualMachine):
     region = models.ForeignKey(Region)
     public_ips = JSONField(default=[], help_text='List of public IP addresses', blank=True)
     private_ips = JSONField(default=[], help_text='List of private IP addresses', blank=True)
+    size_backend_id = models.CharField(max_length=150, blank=True)
 
     @property
     def external_ips(self):
@@ -117,11 +118,6 @@ class Instance(structure_models.VirtualMachine):
         region = self.region.backend_id
         endpoint = REGION_DETAILS[region]['endpoint']
         return get_coordinates_by_ip(endpoint)
-
-    # XXX: For compatibility with new-style state.
-    @property
-    def human_readable_state(self):
-        return force_text(dict(self.States.CHOICES)[self.state])
 
     @classmethod
     def get_url_name(cls):

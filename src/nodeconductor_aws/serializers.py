@@ -153,6 +153,7 @@ class InstanceSerializer(structure_serializers.VirtualMachineSerializer):
         validated_data['ram'] = size.ram
         validated_data['cores'] = size.cores
         validated_data['disk'] = size.disk
+        validated_data['size_backend_id'] = size.backend_id
 
         if ssh_key is not None:
             validated_data['key_name'] = ssh_key.name
