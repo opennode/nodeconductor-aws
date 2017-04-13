@@ -36,10 +36,10 @@ class AWSService(structure_models.Service):
         return 'aws'
 
 
-class AWSServiceProjectLink(structure_models.ServiceProjectLink):
+class AWSServiceProjectLink(structure_models.CloudServiceProjectLink):
     service = models.ForeignKey(AWSService)
 
-    class Meta(structure_models.ServiceProjectLink.Meta):
+    class Meta(structure_models.CloudServiceProjectLink.Meta):
         verbose_name = 'AWS provider project link'
         verbose_name_plural = 'AWS provider project links'
 
@@ -103,6 +103,16 @@ class Instance(structure_models.VirtualMachine):
     public_ips = JSONField(default=[], help_text='List of public IP addresses', blank=True)
     private_ips = JSONField(default=[], help_text='List of private IP addresses', blank=True)
     size_backend_id = models.CharField(max_length=150, blank=True)
+
+    def increase_backend_quotas_usage(self, validate=True):
+        self.service_project_link.add_quota_usage(self.service_project_link.Quotas.storage, self.disk)
+        self.service_project_link.add_quota_usage(self.service_project_link.Quotas.ram, self.ram)
+        self.service_project_link.add_quota_usage(self.service_project_link.Quotas.vcpu, self.cores)
+
+    def decrease_backend_quotas_usage(self):
+        self.service_project_link.add_quota_usage(self.service_project_link.Quotas.storage, -self.disk)
+        self.service_project_link.add_quota_usage(self.service_project_link.Quotas.ram, -self.ram)
+        self.service_project_link.add_quota_usage(self.service_project_link.Quotas.vcpu, -self.cores)
 
     @property
     def external_ips(self):

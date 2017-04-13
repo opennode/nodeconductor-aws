@@ -57,6 +57,7 @@ class SizeViewSet(viewsets.ReadOnlyModelViewSet):
 class InstanceViewSet(structure_views.VirtualMachineViewSet):
     queryset = models.Instance.objects.all()
     serializer_class = serializers.InstanceSerializer
+    create_executor = executors.InstanceCreateExecutor
 
     serializers = {
         'resize': serializers.InstanceResizeSerializer
@@ -70,7 +71,7 @@ class InstanceViewSet(structure_views.VirtualMachineViewSet):
         instance = serializer.save()
         volume = instance.volume_set.first()
 
-        executors.InstanceCreateExecutor.execute(
+        self.create_executor.execute(
             instance,
             image=serializer.validated_data.get('image'),
             size=serializer.validated_data.get('size'),
