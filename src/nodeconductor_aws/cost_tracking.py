@@ -16,7 +16,10 @@ class InstanceStrategy(CostTrackingStrategy):
 
     @classmethod
     def get_configuration(cls, instance):
-        return {}
+        consumables = {}
+        if instance.state != models.Instance.States.ERRED:
+            consumables[ConsumableItem(item_type=cls.Types.FLAVOR, key=instance.size_backend_id)] = 1
+        return consumables
 
 
 CostTrackingRegister.register_strategy(InstanceStrategy)

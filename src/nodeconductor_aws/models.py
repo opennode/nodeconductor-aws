@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible, force_text
+from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 from libcloud.compute.drivers.ec2 import REGION_DETAILS
 
@@ -36,10 +36,10 @@ class AWSService(structure_models.Service):
         return 'aws'
 
 
-class AWSServiceProjectLink(structure_models.ServiceProjectLink):
+class AWSServiceProjectLink(structure_models.CloudServiceProjectLink):
     service = models.ForeignKey(AWSService)
 
-    class Meta(structure_models.ServiceProjectLink.Meta):
+    class Meta(structure_models.CloudServiceProjectLink.Meta):
         verbose_name = 'AWS provider project link'
         verbose_name_plural = 'AWS provider project links'
 
@@ -102,6 +102,18 @@ class Instance(structure_models.VirtualMachine):
     region = models.ForeignKey(Region)
     public_ips = JSONField(default=[], help_text='List of public IP addresses', blank=True)
     private_ips = JSONField(default=[], help_text='List of private IP addresses', blank=True)
+    size_backend_id = models.CharField(max_length=150, blank=True)
+
+    def increase_backend_quotas_usage(self, validate=True):
+        spl = self.service_project_link
+        spl.add_quota_usage(spl.Quotas.storage, self.disk, validate=validate)
+        spl.add_quota_usage(spl.Quotas.ram, self.ram, validate=validate)
+        spl.add_quota_usage(spl.Quotas.vcpu, self.cores, validate=validate)
+
+    def decrease_backend_quotas_usage(self):
+        self.service_project_link.add_quota_usage(self.service_project_link.Quotas.storage, -self.disk)
+        self.service_project_link.add_quota_usage(self.service_project_link.Quotas.ram, -self.ram)
+        self.service_project_link.add_quota_usage(self.service_project_link.Quotas.vcpu, -self.cores)
 
     @property
     def external_ips(self):
@@ -117,11 +129,6 @@ class Instance(structure_models.VirtualMachine):
         region = self.region.backend_id
         endpoint = REGION_DETAILS[region]['endpoint']
         return get_coordinates_by_ip(endpoint)
-
-    # XXX: For compatibility with new-style state.
-    @property
-    def human_readable_state(self):
-        return force_text(dict(self.States.CHOICES)[self.state])
 
     @classmethod
     def get_url_name(cls):

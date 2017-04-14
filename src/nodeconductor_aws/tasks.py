@@ -19,6 +19,7 @@ def destroy(instance_uuid, transition_entity=None):
         set_erred(instance_uuid)
         raise
     else:
+        instance.decrease_backend_quotas_usage()
         instance.delete()
 
 

@@ -153,6 +153,7 @@ class InstanceSerializer(structure_serializers.VirtualMachineSerializer):
         validated_data['ram'] = size.ram
         validated_data['cores'] = size.cores
         validated_data['disk'] = size.disk
+        validated_data['size_backend_id'] = size.backend_id
 
         if ssh_key is not None:
             validated_data['key_name'] = ssh_key.name
@@ -220,7 +221,7 @@ class InstanceResizeSerializer(structure_serializers.PermissionFieldFilteringMix
 
     def validate(self, attrs):
         size = attrs['size']
-        instance = attrs['instance']
+        instance = self.instance
 
         if not size.regions.filter(uuid=self.instance.region.uuid).exists():
             raise serializers.ValidationError("New size is not within the same region.")
@@ -232,7 +233,7 @@ class InstanceResizeSerializer(structure_serializers.PermissionFieldFilteringMix
             raise serializers.ValidationError("New disk size should be greater than the previous value")
 
         if instance.runtime_state not in [NodeState.TERMINATED,
-                                          NodeState.STOPED,
+                                          NodeState.STOPPED,
                                           NodeState.SUSPENDED,
                                           NodeState.PAUSED]:
             raise serializers.ValidationError("Instance runtime state must be in one of offline states.")
@@ -242,10 +243,20 @@ class InstanceResizeSerializer(structure_serializers.PermissionFieldFilteringMix
     def update(self, instance, validated_data):
         size = validated_data.get('size')
 
+        ram_increase = size.ram - instance.ram
+        cores_increase = size.cores - instance.cores
+        disk_increase = size.disk - instance.disk
+
         instance.ram = size.ram
         instance.cores = size.cores
         instance.disk = size.disk
         instance.save(update_fields=['ram', 'cores', 'disk'])
+
+        spl = instance.service_project_link
+        spl.add_quota_usage(spl.Quotas.storage, disk_increase, validate=True)
+        spl.add_quota_usage(spl.Quotas.ram, ram_increase, validate=True)
+        spl.add_quota_usage(spl.Quotas.vcpu, cores_increase, validate=True)
+
         return instance
 
 
