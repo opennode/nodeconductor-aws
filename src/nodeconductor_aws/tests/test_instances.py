@@ -48,3 +48,35 @@ class InstanceCreateTest(test.APITransactionTestCase):
             'service_project_link': factories.AWSServiceProjectLinkFactory.get_url(self.fixture.spl),
             'name': 'aws-instance-name'
         }
+
+
+class InstanceResizeTest(test.APITransactionTestCase):
+
+    def setUp(self):
+        self.fixture = fixtures.AWSFixture()
+
+    @mock.patch('nodeconductor_aws.executors.InstanceResizeExecutor.execute')
+    def test_resize_increases_quotas_usage(self, executor):
+        self.client.force_authenticate(self.fixture.owner)
+        instance = self.fixture.instance
+        instance.increase_backend_quotas_usage()
+        size = factories.SizeFactory(cores=instance.cores+2,
+                                     ram=instance.ram+1024,
+                                     disk=instance.disk+2048)
+        size.regions.add(instance.region)
+
+        payload = {
+            'size': factories.SizeFactory.get_url(size),
+        }
+
+        response = self.client.post(factories.InstanceFactory.get_url(instance, 'resize'), payload)
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        spl = instance.service_project_link
+        actual_storage_quota = spl.quotas.get(name=models.AWSServiceProjectLink.Quotas.storage).usage
+        actual_ram_quota = spl.quotas.get(name=models.AWSServiceProjectLink.Quotas.ram).usage
+        actual_vcpu_quota = spl.quotas.get(name=models.AWSServiceProjectLink.Quotas.vcpu).usage
+        self.assertEqual(size.disk, actual_storage_quota)
+        self.assertEqual(size.ram, actual_ram_quota)
+        self.assertEqual(size.cores, actual_vcpu_quota)
+

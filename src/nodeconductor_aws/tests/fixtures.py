@@ -28,3 +28,7 @@ class AWSFixture(ProjectFixture):
         size = factories.SizeFactory()
         size.regions.add(self.region)
         return size
+
+    @cached_property
+    def instance(self):
+        return factories.InstanceFactory(service_project_link=self.spl, region=self.region)

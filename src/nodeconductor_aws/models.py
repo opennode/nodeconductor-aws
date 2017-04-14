@@ -105,9 +105,10 @@ class Instance(structure_models.VirtualMachine):
     size_backend_id = models.CharField(max_length=150, blank=True)
 
     def increase_backend_quotas_usage(self, validate=True):
-        self.service_project_link.add_quota_usage(self.service_project_link.Quotas.storage, self.disk)
-        self.service_project_link.add_quota_usage(self.service_project_link.Quotas.ram, self.ram)
-        self.service_project_link.add_quota_usage(self.service_project_link.Quotas.vcpu, self.cores)
+        spl = self.service_project_link
+        spl.add_quota_usage(spl.Quotas.storage, self.disk, validate=validate)
+        spl.add_quota_usage(spl.Quotas.ram, self.ram, validate=validate)
+        spl.add_quota_usage(spl.Quotas.vcpu, self.cores, validate=validate)
 
     def decrease_backend_quotas_usage(self):
         self.service_project_link.add_quota_usage(self.service_project_link.Quotas.storage, -self.disk)

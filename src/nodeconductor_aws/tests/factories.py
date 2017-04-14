@@ -2,6 +2,7 @@ import factory
 from factory import fuzzy
 
 from django.core.urlresolvers import reverse
+from libcloud.compute.types import NodeState
 
 from nodeconductor.structure.tests import factories as structure_factories
 
@@ -111,18 +112,20 @@ class InstanceFactory(factory.DjangoModelFactory):
     name = factory.Sequence(lambda n: 'instance%s' % n)
     backend_id = factory.Sequence(lambda n: 'instance-id%s' % n)
     service_project_link = factory.SubFactory(AWSServiceProjectLinkFactory)
+    region = factory.SubFactory(RegionFactory)
 
     state = models.Instance.States.OK
+    runtime_state = NodeState.STOPPED
     cores = fuzzy.FuzzyInteger(1, 8, step=2)
     ram = fuzzy.FuzzyInteger(1024, 10240, step=1024)
     disk = fuzzy.FuzzyInteger(1024, 102400, step=1024)
-    transfer = fuzzy.FuzzyInteger(10240, 102400, step=10240)
 
     @classmethod
-    def get_url(cls, instance=None):
+    def get_url(cls, instance=None, action=None):
         if instance is None:
             instance = InstanceFactory()
-        return 'http://testserver' + reverse('aws-instance-detail', kwargs={'uuid': instance.uuid})
+        url = 'http://testserver' + reverse('aws-instance-detail', kwargs={'uuid': instance.uuid})
+        return url if action is None else url + action + '/'
 
     @classmethod
     def get_list_url(cls):
