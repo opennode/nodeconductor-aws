@@ -57,6 +57,8 @@ class SizeViewSet(viewsets.ReadOnlyModelViewSet):
 class InstanceViewSet(structure_views.VirtualMachineViewSet):
     queryset = models.Instance.objects.all()
     serializer_class = serializers.InstanceSerializer
+    create_executor = executors.InstanceCreateExecutor
+    resize_executor = executors.InstanceResizeExecutor
 
     serializers = {
         'resize': serializers.InstanceResizeSerializer
@@ -70,7 +72,7 @@ class InstanceViewSet(structure_views.VirtualMachineViewSet):
         instance = serializer.save()
         volume = instance.volume_set.first()
 
-        executors.InstanceCreateExecutor.execute(
+        self.create_executor.execute(
             instance,
             image=serializer.validated_data.get('image'),
             size=serializer.validated_data.get('size'),
@@ -86,7 +88,7 @@ class InstanceViewSet(structure_views.VirtualMachineViewSet):
         serializer.save()
 
         new_size = serializer.validated_data.get('size')
-        executors.InstanceResizeExecutor().execute(instance, size=new_size)
+        self.resize_executor.execute(instance, size=new_size)
 
 
 class VolumeViewSet(six.with_metaclass(structure_views.ResourceViewMetaclass,
