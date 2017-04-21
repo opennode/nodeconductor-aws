@@ -60,9 +60,9 @@ class InstanceResizeTest(test.APITransactionTestCase):
         self.client.force_authenticate(self.fixture.owner)
         instance = self.fixture.instance
         instance.increase_backend_quotas_usage()
-        size = factories.SizeFactory(cores=instance.cores+2,
-                                     ram=instance.ram+1024,
-                                     disk=instance.disk+2048)
+        size = factories.SizeFactory(cores=instance.cores + 2,
+                                     ram=instance.ram + 1024,
+                                     disk=instance.disk + 2048)
         size.regions.add(instance.region)
 
         payload = {
@@ -79,4 +79,3 @@ class InstanceResizeTest(test.APITransactionTestCase):
         self.assertEqual(size.disk, actual_storage_quota)
         self.assertEqual(size.ram, actual_ram_quota)
         self.assertEqual(size.cores, actual_vcpu_quota)
-

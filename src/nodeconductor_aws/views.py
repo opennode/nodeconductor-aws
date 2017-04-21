@@ -1,8 +1,7 @@
-import six
+from django.utils.translation import gettext_lazy as _
+from rest_framework import decorators, viewsets, serializers as rf_serializers, response, status
 
-from rest_framework import decorators, exceptions, viewsets
-
-from nodeconductor.core.views import StateExecutorViewSet
+from nodeconductor.core import exceptions as core_exceptions, validators as core_validators
 from nodeconductor.structure import views as structure_views
 
 from . import filters, models, serializers, executors
@@ -54,21 +53,15 @@ class SizeViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = 'uuid'
 
 
-class InstanceViewSet(structure_views.VirtualMachineViewSet):
+class InstanceViewSet(structure_views.ResourceViewSet):
     queryset = models.Instance.objects.all()
     serializer_class = serializers.InstanceSerializer
     create_executor = executors.InstanceCreateExecutor
-    resize_executor = executors.InstanceResizeExecutor
 
-    serializers = {
-        'resize': serializers.InstanceResizeSerializer
-    }
+    delete_executor = executors.InstanceDeleteExecutor
+    destroy_validators = [core_validators.StateValidator(models.Instance.States.OK, models.Instance.States.ERRED)]
 
-    def get_serializer_class(self):
-        serializer = self.serializers.get(self.action)
-        return serializer or super(InstanceViewSet, self).get_serializer_class()
-
-    def perform_provision(self, serializer):
+    def perform_create(self, serializer):
         instance = serializer.save()
         volume = instance.volume_set.first()
 
@@ -81,38 +74,68 @@ class InstanceViewSet(structure_views.VirtualMachineViewSet):
         )
 
     @decorators.detail_route(methods=['post'])
-    @structure_views.safe_operation(valid_state=models.Instance.States.OK)
-    def resize(self, request, instance, uuid=None):
+    def start(self, request, uuid=None):
+        instance = self.get_object()
+        executors.InstanceStartExecutor().execute(instance)
+        return response.Response({'status': 'start was scheduled'}, status=status.HTTP_202_ACCEPTED)
+
+    start_validators = [core_validators.StateValidator(models.Instance.States.OK),
+                        core_validators.RuntimeStateValidator('stopped')]
+    start_serializer_class = rf_serializers.Serializer
+
+    @decorators.detail_route(methods=['post'])
+    def stop(self, request, uuid=None):
+        instance = self.get_object()
+        executors.InstanceStopExecutor().execute(instance)
+        return response.Response({'status': 'stop was scheduled'}, status=status.HTTP_202_ACCEPTED)
+
+    stop_validators = [core_validators.StateValidator(models.Instance.States.OK),
+                       core_validators.RuntimeStateValidator('running')]
+    stop_serializer_class = rf_serializers.Serializer
+
+    @decorators.detail_route(methods=['post'])
+    def restart(self, request, uuid=None):
+        instance = self.get_object()
+        executors.InstanceRestartExecutor().execute(instance)
+        return response.Response({'status': 'restart was scheduled'}, status=status.HTTP_202_ACCEPTED)
+
+    restart_validators = [core_validators.StateValidator(models.Instance.States.OK),
+                          core_validators.RuntimeStateValidator('running')]
+    restart_serializer_class = rf_serializers.Serializer
+
+    @decorators.detail_route(methods=['post'])
+    def resize(self, request, uuid=None):
+        instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
         new_size = serializer.validated_data.get('size')
-        self.resize_executor.execute(instance, size=new_size)
+        executors.InstanceResizeExecutor().execute(instance, size=new_size)
+        return response.Response({'status': 'resize was scheduled'}, status=status.HTTP_202_ACCEPTED)
+
+    resize_validators = [core_validators.StateValidator(models.Instance.States.OK)]
+    resize_serializer_class = serializers.InstanceResizeSerializer
 
 
-class VolumeViewSet(six.with_metaclass(structure_views.ResourceViewMetaclass,
-                                       structure_views.ResourceViewMixin,
-                                       StateExecutorViewSet)):
+class VolumeViewSet(structure_views.ResourceViewSet):
     queryset = models.Volume.objects.all()
     serializer_class = serializers.VolumeSerializer
     create_executor = executors.VolumeCreateExecutor
     delete_executor = executors.VolumeDeleteExecutor
 
-    serializers = {
-        'attach': serializers.VolumeAttachSerializer
-    }
-
-    @decorators.detail_route(methods=['post'])
-    @structure_views.safe_operation(valid_state=models.Volume.States.OK)
-    def detach(self, request, volume, uuid=None):
+    def _has_instance(volume):
         if not volume.instance:
-            raise exceptions.ValidationError('Volume is already detached.')
-
-        executors.VolumeDetachExecutor.execute(volume)
+            raise core_exceptions.IncorrectStateException(_('Volume is already detached.'))
 
     @decorators.detail_route(methods=['post'])
-    @structure_views.safe_operation(valid_state=models.Volume.States.OK)
+    def detach(self, request, uuid=None):
+        executors.VolumeDetachExecutor.execute(self.get_object())
+
+    detach_validators = [core_validators.StateValidator(models.Volume.States.OK), _has_instance]
+    detach_serializer_class = rf_serializers.Serializer
+
+    @decorators.detail_route(methods=['post'])
     def attach(self, request, volume, uuid=None):
         serializer = self.get_serializer(volume, data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -120,6 +143,5 @@ class VolumeViewSet(six.with_metaclass(structure_views.ResourceViewMetaclass,
 
         executors.VolumeAttachExecutor.execute(volume)
 
-    def get_serializer_class(self):
-        serializer = self.serializers.get(self.action)
-        return serializer or super(VolumeViewSet, self).get_serializer_class()
+    attach_validators = [core_validators.StateValidator(models.Volume.States.OK)]
+    attach_serializer_class = serializers.VolumeAttachSerializer
