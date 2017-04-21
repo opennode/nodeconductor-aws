@@ -118,11 +118,6 @@ class InstanceCreateExecutor(executors.CreateExecutor):
 class InstanceResizeExecutor(executors.ActionExecutor):
 
     @classmethod
-    def pre_apply(cls, instance, **kwargs):
-        instance.schedule_resizing()
-        instance.save(update_fields=['state'])
-
-    @classmethod
     def get_task_signature(cls, instance, serialized_instance, **kwargs):
         size = kwargs.pop('size')
         return chain(
@@ -143,3 +138,66 @@ class InstanceResizeExecutor(executors.ActionExecutor):
     @classmethod
     def get_success_signature(cls, instance, serialized_instance, **kwargs):
         return core_tasks.StateTransitionTask().si(serialized_instance, state_transition='set_ok')
+
+
+class InstanceStopExecutor(executors.ActionExecutor):
+
+    @classmethod
+    def get_task_signature(cls, instance, serialized_instance, **kwargs):
+        return chain(
+            core_tasks.BackendMethodTask().si(
+                serialized_instance, 'stop_instance', state_transition='begin_updating',
+            ),
+            PollRuntimeStateTask().si(
+                serialized_instance,
+                backend_pull_method='pull_instance_runtime_state',
+                success_state='stopped',
+                erred_state='erred',
+            ),
+        )
+
+
+class InstanceStartExecutor(executors.ActionExecutor):
+
+    @classmethod
+    def get_task_signature(cls, instance, serialized_instance, **kwargs):
+        return chain(
+            core_tasks.BackendMethodTask().si(
+                serialized_instance, 'start_instance', state_transition='begin_updating',
+            ),
+            PollRuntimeStateTask().si(
+                serialized_instance,
+                backend_pull_method='pull_instance_runtime_state',
+                success_state='running',
+                erred_state='erred',
+            ),
+        )
+
+
+class InstanceRestartExecutor(executors.ActionExecutor):
+
+    @classmethod
+    def get_task_signature(cls, instance, serialized_instance, **kwargs):
+        return chain(
+            core_tasks.BackendMethodTask().si(
+                serialized_instance, 'reboot_instance', state_transition='begin_updating',
+            ),
+            PollRuntimeStateTask().si(
+                serialized_instance,
+                backend_pull_method='pull_instance_runtime_state',
+                success_state='running',
+                erred_state='erred',
+            ),
+        )
+
+
+class InstanceDeleteExecutor(executors.DeleteExecutor):
+
+    @classmethod
+    def get_task_signature(cls, instance, serialized_instance, **kwargs):
+        if instance.backend_id:
+            # TODO: check was instance really deleted in a separate task.
+            return core_tasks.BackendMethodTask().si(
+                serialized_instance, 'destroy_instance', state_transition='begin_deleting')
+        else:
+            return core_tasks.StateTransitionTask().si(serialized_instance, state_transition='begin_deleting')
