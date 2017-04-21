@@ -56,6 +56,7 @@ class SizeViewSet(viewsets.ReadOnlyModelViewSet):
 class InstanceViewSet(structure_views.ResourceViewSet):
     queryset = models.Instance.objects.all()
     serializer_class = serializers.InstanceSerializer
+    create_executor = executors.InstanceCreateExecutor
 
     delete_executor = executors.InstanceDeleteExecutor
     destroy_validators = [core_validators.StateValidator(models.Instance.States.OK, models.Instance.States.ERRED)]
@@ -63,7 +64,8 @@ class InstanceViewSet(structure_views.ResourceViewSet):
     def perform_create(self, serializer):
         instance = serializer.save()
         volume = instance.volume_set.first()
-        executors.InstanceCreateExecutor.execute(
+
+        self.create_executor.execute(
             instance,
             image=serializer.validated_data.get('image'),
             size=serializer.validated_data.get('size'),

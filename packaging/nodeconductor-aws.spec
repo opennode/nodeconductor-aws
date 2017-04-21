@@ -1,13 +1,13 @@
 Name: nodeconductor-aws
 Summary: Amazon plugin for NodeConductor
 Group: Development/Libraries
-Version: 0.4.3
+Version: 0.5.2
 Release: 1.el7
 License: MIT
 Url: http://nodeconductor.com
 Source0: %{name}-%{version}.tar.gz
 
-Requires: nodeconductor > 0.132.0
+Requires: nodeconductor > 0.134.0
 Requires: python-libcloud >= 1.1.0
 
 BuildArch: noarch
@@ -36,6 +36,15 @@ rm -rf %{buildroot}
 %{python_sitelib}/*
 
 %changelog
+* Fri Apr 14 2017 Jenkins <jenkins@opennodecloud.com> - 0.5.2-1.el7
+- New upstream release
+
+* Wed Apr 12 2017 Jenkins <jenkins@opennodecloud.com> - 0.5.1-1.el7
+- New upstream release
+
+* Tue Apr 11 2017 Jenkins <jenkins@opennodecloud.com> - 0.5.0-1.el7
+- New upstream release
+
 * Fri Apr 7 2017 Jenkins <jenkins@opennodecloud.com> - 0.4.3-1.el7
 - New upstream release
 

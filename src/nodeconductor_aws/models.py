@@ -17,8 +17,8 @@ class AWSService(structure_models.Service):
         structure_models.Project, related_name='aws_services', through='AWSServiceProjectLink')
 
     class Meta(structure_models.Service.Meta):
-        verbose_name = 'AWS service'
-        verbose_name_plural = 'AWS services'
+        verbose_name = 'AWS provider'
+        verbose_name_plural = 'AWS providers'
 
     class Quotas(QuotaModelMixin.Quotas):
         instance_count = CounterQuotaField(
@@ -36,12 +36,12 @@ class AWSService(structure_models.Service):
         return 'aws'
 
 
-class AWSServiceProjectLink(structure_models.ServiceProjectLink):
+class AWSServiceProjectLink(structure_models.CloudServiceProjectLink):
     service = models.ForeignKey(AWSService)
 
-    class Meta(structure_models.ServiceProjectLink.Meta):
-        verbose_name = 'AWS service project link'
-        verbose_name_plural = 'AWS service project links'
+    class Meta(structure_models.CloudServiceProjectLink.Meta):
+        verbose_name = 'AWS provider project link'
+        verbose_name_plural = 'AWS provider project links'
 
     @classmethod
     def get_url_name(cls):
@@ -103,6 +103,17 @@ class Instance(structure_models.VirtualMachine):
     public_ips = JSONField(default=[], help_text='List of public IP addresses', blank=True)
     private_ips = JSONField(default=[], help_text='List of private IP addresses', blank=True)
     size_backend_id = models.CharField(max_length=150, blank=True)
+
+    def increase_backend_quotas_usage(self, validate=True):
+        spl = self.service_project_link
+        spl.add_quota_usage(spl.Quotas.storage, self.disk, validate=validate)
+        spl.add_quota_usage(spl.Quotas.ram, self.ram, validate=validate)
+        spl.add_quota_usage(spl.Quotas.vcpu, self.cores, validate=validate)
+
+    def decrease_backend_quotas_usage(self):
+        self.service_project_link.add_quota_usage(self.service_project_link.Quotas.storage, -self.disk)
+        self.service_project_link.add_quota_usage(self.service_project_link.Quotas.ram, -self.ram)
+        self.service_project_link.add_quota_usage(self.service_project_link.Quotas.vcpu, -self.cores)
 
     @property
     def external_ips(self):

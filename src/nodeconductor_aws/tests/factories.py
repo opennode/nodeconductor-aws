@@ -1,6 +1,8 @@
 import factory
+from factory import fuzzy
 
 from django.core.urlresolvers import reverse
+from libcloud.compute.types import NodeState
 
 from nodeconductor.structure.tests import factories as structure_factories
 
@@ -32,6 +34,34 @@ class AWSServiceProjectLinkFactory(factory.DjangoModelFactory):
     service = factory.SubFactory(AWSServiceFactory)
     project = factory.SubFactory(structure_factories.ProjectFactory)
 
+    @classmethod
+    def get_url(cls, spl=None):
+        if spl is None:
+            spl = AWSServiceProjectLinkFactory()
+        return 'http://testserver' + reverse('aws-spl-detail', kwargs={'pk': spl.id})
+
+    @classmethod
+    def get_list_url(cls):
+        return 'http://testserver' + reverse('aws-spl-list')
+
+
+class RegionFactory(factory.DjangoModelFactory):
+    class Meta(object):
+        model = models.Region
+
+    name = factory.Sequence(lambda n: 'region%s' % n)
+    backend_id = factory.sequence(lambda n: 'id-%s' % n)
+
+    @classmethod
+    def get_url(cls, region=None):
+        if region is None:
+            region = RegionFactory()
+        return 'http://testserver' + reverse('aws-region-detail', kwargs={'uuid': region.uuid})
+
+    @classmethod
+    def get_list_url(cls):
+        return 'http://testserver' + reverse('aws-region-list')
+
 
 class ImageFactory(factory.DjangoModelFactory):
     class Meta(object):
@@ -39,6 +69,7 @@ class ImageFactory(factory.DjangoModelFactory):
 
     name = factory.Sequence(lambda n: 'image%s' % n)
     backend_id = factory.Sequence(lambda n: 'image-id%s' % n)
+    region = factory.SubFactory(RegionFactory)
 
     @classmethod
     def get_url(cls, image=None):
@@ -51,9 +82,51 @@ class ImageFactory(factory.DjangoModelFactory):
         return 'http://testserver' + reverse('aws-image-list')
 
 
-class RegionFactory(factory.DjangoModelFactory):
+class SizeFactory(factory.DjangoModelFactory):
     class Meta(object):
-        model = models.Region
+        model = models.Size
 
-    name = factory.Sequence(lambda n: 'region%s' % n)
+    name = factory.Sequence(lambda n: 'size%s' % n)
     backend_id = factory.sequence(lambda n: 'id-%s' % n)
+
+    cores = fuzzy.FuzzyInteger(1, 8, step=2)
+    ram = fuzzy.FuzzyInteger(1024, 10240, step=1024)
+    disk = fuzzy.FuzzyInteger(1024, 102400, step=1024)
+    price = fuzzy.FuzzyDecimal(0.5, 5, precision=2)
+
+    @classmethod
+    def get_url(cls, size=None):
+        if size is None:
+            size = SizeFactory()
+        return 'http://testserver' + reverse('aws-size-detail', kwargs={'uuid': size.uuid})
+
+    @classmethod
+    def get_list_url(cls):
+        return 'http://testserver' + reverse('aws-size-list')
+
+
+class InstanceFactory(factory.DjangoModelFactory):
+    class Meta(object):
+        model = models.Instance
+
+    name = factory.Sequence(lambda n: 'instance%s' % n)
+    backend_id = factory.Sequence(lambda n: 'instance-id%s' % n)
+    service_project_link = factory.SubFactory(AWSServiceProjectLinkFactory)
+    region = factory.SubFactory(RegionFactory)
+
+    state = models.Instance.States.OK
+    runtime_state = NodeState.STOPPED
+    cores = fuzzy.FuzzyInteger(1, 8, step=2)
+    ram = fuzzy.FuzzyInteger(1024, 10240, step=1024)
+    disk = fuzzy.FuzzyInteger(1024, 102400, step=1024)
+
+    @classmethod
+    def get_url(cls, instance=None, action=None):
+        if instance is None:
+            instance = InstanceFactory()
+        url = 'http://testserver' + reverse('aws-instance-detail', kwargs={'uuid': instance.uuid})
+        return url if action is None else url + action + '/'
+
+    @classmethod
+    def get_list_url(cls):
+        return 'http://testserver' + reverse('aws-instance-list')
