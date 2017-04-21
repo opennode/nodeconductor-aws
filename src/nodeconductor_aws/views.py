@@ -114,7 +114,7 @@ class InstanceViewSet(structure_views.ResourceViewSet):
         return response.Response({'status': 'resize was scheduled'}, status=status.HTTP_202_ACCEPTED)
 
     resize_validators = [core_validators.StateValidator(models.Instance.States.OK)]
-    resize_serializer_class = serializers.InstanceResizeSerializer()
+    resize_serializer_class = serializers.InstanceResizeSerializer
 
 
 class VolumeViewSet(structure_views.ResourceViewSet):
