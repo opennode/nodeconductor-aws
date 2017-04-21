@@ -132,7 +132,7 @@ class VolumeViewSet(structure_views.ResourceViewSet):
         executors.VolumeDetachExecutor.execute(self.get_object())
 
     detach_validators = [core_validators.StateValidator(models.Volume.States.OK), _has_instance]
-    detach_serializer_class = rf_serializers.Serializer()
+    detach_serializer_class = rf_serializers.Serializer
 
     @decorators.detail_route(methods=['post'])
     def attach(self, request, volume, uuid=None):
