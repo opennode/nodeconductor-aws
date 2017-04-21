@@ -104,7 +104,8 @@ class InstanceViewSet(structure_views.ResourceViewSet):
     restart_serializer_class = rf_serializers.Serializer
 
     @decorators.detail_route(methods=['post'])
-    def resize(self, request, instance, uuid=None):
+    def resize(self, request, uuid=None):
+        instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
