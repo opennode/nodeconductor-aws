@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.translation import ugettext_lazy as _
 from jsonfield import JSONField
 from libcloud.compute.drivers.ec2 import REGION_DETAILS
 
@@ -17,8 +18,8 @@ class AWSService(structure_models.Service):
         structure_models.Project, related_name='aws_services', through='AWSServiceProjectLink')
 
     class Meta(structure_models.Service.Meta):
-        verbose_name = 'AWS provider'
-        verbose_name_plural = 'AWS providers'
+        verbose_name = _('AWS provider')
+        verbose_name_plural = _('AWS providers')
 
     class Quotas(QuotaModelMixin.Quotas):
         instance_count = CounterQuotaField(
@@ -40,8 +41,8 @@ class AWSServiceProjectLink(structure_models.CloudServiceProjectLink):
     service = models.ForeignKey(AWSService)
 
     class Meta(structure_models.CloudServiceProjectLink.Meta):
-        verbose_name = 'AWS provider project link'
-        verbose_name_plural = 'AWS provider project links'
+        verbose_name = _('AWS provider project link')
+        verbose_name_plural = _('AWS provider project links')
 
     @classmethod
     def get_url_name(cls):
@@ -81,10 +82,10 @@ class Size(structure_models.GeneralServiceProperty):
         ordering = ['cores', 'ram']
 
     regions = models.ManyToManyField(Region)
-    cores = models.PositiveSmallIntegerField(help_text='Number of cores in a VM')
-    ram = models.PositiveIntegerField(help_text='Memory size in MiB')
-    disk = models.PositiveIntegerField(help_text='Disk size in MiB')
-    price = models.DecimalField('Hourly price rate', default=0, max_digits=11, decimal_places=5)
+    cores = models.PositiveSmallIntegerField(help_text=_('Number of cores in a VM'))
+    ram = models.PositiveIntegerField(help_text=_('Memory size in MiB'))
+    disk = models.PositiveIntegerField(help_text=_('Disk size in MiB'))
+    price = models.DecimalField(_('Hourly price rate'), default=0, max_digits=11, decimal_places=5)
 
     @classmethod
     def get_url_name(cls):
@@ -100,8 +101,8 @@ class Instance(structure_models.VirtualMachine):
         AWSServiceProjectLink, related_name='instances', on_delete=models.PROTECT)
 
     region = models.ForeignKey(Region)
-    public_ips = JSONField(default=[], help_text='List of public IP addresses', blank=True)
-    private_ips = JSONField(default=[], help_text='List of private IP addresses', blank=True)
+    public_ips = JSONField(default=[], help_text=_('List of public IP addresses'), blank=True)
+    private_ips = JSONField(default=[], help_text=_('List of private IP addresses'), blank=True)
     size_backend_id = models.CharField(max_length=150, blank=True)
 
     def increase_backend_quotas_usage(self, validate=True):
@@ -152,11 +153,11 @@ class Volume(RuntimeStateMixin, structure_models.NewResource):
         AWSServiceProjectLink, related_name='volumes', on_delete=models.PROTECT)
 
     VOLUME_TYPES = (
-        ('gp2', 'General Purpose SSD'),
-        ('io1', 'Provisioned IOPS SSD'),
-        ('standard', 'Magnetic volumes')
+        ('gp2', _('General Purpose SSD')),
+        ('io1', _('Provisioned IOPS SSD')),
+        ('standard', _('Magnetic volumes'))
     )
-    size = models.PositiveIntegerField(help_text='Size of volume in gigabytes')
+    size = models.PositiveIntegerField(help_text=_('Size of volume in gigabytes'))
     region = models.ForeignKey(Region)
     volume_type = models.CharField(max_length=8, choices=VOLUME_TYPES)
     device = models.CharField(max_length=128, blank=True, null=True)
