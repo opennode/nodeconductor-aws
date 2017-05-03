@@ -77,7 +77,7 @@ class InstanceViewSet(structure_views.ResourceViewSet):
     def start(self, request, uuid=None):
         instance = self.get_object()
         executors.InstanceStartExecutor().execute(instance)
-        return response.Response({'status': 'start was scheduled'}, status=status.HTTP_202_ACCEPTED)
+        return response.Response({'status': _('start was scheduled')}, status=status.HTTP_202_ACCEPTED)
 
     start_validators = [core_validators.StateValidator(models.Instance.States.OK),
                         core_validators.RuntimeStateValidator('stopped')]
@@ -87,7 +87,7 @@ class InstanceViewSet(structure_views.ResourceViewSet):
     def stop(self, request, uuid=None):
         instance = self.get_object()
         executors.InstanceStopExecutor().execute(instance)
-        return response.Response({'status': 'stop was scheduled'}, status=status.HTTP_202_ACCEPTED)
+        return response.Response({'status': _('stop was scheduled')}, status=status.HTTP_202_ACCEPTED)
 
     stop_validators = [core_validators.StateValidator(models.Instance.States.OK),
                        core_validators.RuntimeStateValidator('running')]
@@ -97,7 +97,7 @@ class InstanceViewSet(structure_views.ResourceViewSet):
     def restart(self, request, uuid=None):
         instance = self.get_object()
         executors.InstanceRestartExecutor().execute(instance)
-        return response.Response({'status': 'restart was scheduled'}, status=status.HTTP_202_ACCEPTED)
+        return response.Response({'status': _('restart was scheduled')}, status=status.HTTP_202_ACCEPTED)
 
     restart_validators = [core_validators.StateValidator(models.Instance.States.OK),
                           core_validators.RuntimeStateValidator('running')]
@@ -112,7 +112,7 @@ class InstanceViewSet(structure_views.ResourceViewSet):
 
         new_size = serializer.validated_data.get('size')
         executors.InstanceResizeExecutor().execute(instance, size=new_size)
-        return response.Response({'status': 'resize was scheduled'}, status=status.HTTP_202_ACCEPTED)
+        return response.Response({'status': _('resize was scheduled')}, status=status.HTTP_202_ACCEPTED)
 
     resize_validators = [core_validators.StateValidator(models.Instance.States.OK)]
     resize_serializer_class = serializers.InstanceResizeSerializer

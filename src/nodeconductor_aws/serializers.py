@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.utils.translation import ugettext_lazy as _
 from libcloud.compute.types import NodeState
 from rest_framework import serializers
 
@@ -33,7 +34,7 @@ class ServiceSerializer(core_serializers.ExtraFieldOptionsMixin,
                 'required': True
             },
             'images_regex': {
-                'help_text': 'Regular expression to limit images list'
+                'help_text': _('Regular expression to limit images list')
             }
         }
 
@@ -138,10 +139,10 @@ class InstanceSerializer(structure_serializers.VirtualMachineSerializer):
         size = attrs['size']
 
         if image.region != region:
-            raise serializers.ValidationError("Image is missing in region %s" % region.name)
+            raise serializers.ValidationError(_('Image is missing in region %s') % region.name)
 
         if not size.regions.filter(pk=region.pk).exists():
-            raise serializers.ValidationError("Size is missing in region %s" % region.name)
+            raise serializers.ValidationError(_('Size is missing in region %s') % region.name)
 
         return attrs
 
@@ -185,7 +186,7 @@ class InstanceImportSerializer(AWSImportSerializerMixin,
             region, instance = backend.find_instance(validated_data['backend_id'])
         except AWSBackendError:
             raise serializers.ValidationError(
-                {'backend_id': "Can't find instance with ID %s" % validated_data['backend_id']})
+                {'backend_id': _("Can't find instance with ID %s") % validated_data['backend_id']})
 
         validated_data['name'] = instance['name']
         validated_data['public_ips'] = instance['public_ips']
@@ -224,19 +225,19 @@ class InstanceResizeSerializer(structure_serializers.PermissionFieldFilteringMix
         instance = self.instance
 
         if not size.regions.filter(uuid=self.instance.region.uuid).exists():
-            raise serializers.ValidationError("New size is not within the same region.")
+            raise serializers.ValidationError(_('New size is not within the same region.'))
 
         if (size.ram, size.disk, size.cores) == (self.instance.ram, self.instance.disk, self.instance.cores):
-            raise serializers.ValidationError("New size is the same as current.")
+            raise serializers.ValidationError(_('New size is the same as current.'))
 
         if size.disk < self.instance.disk:
-            raise serializers.ValidationError("New disk size should be greater than the previous value")
+            raise serializers.ValidationError(_('New disk size should be greater than the previous value'))
 
         if instance.runtime_state not in [NodeState.TERMINATED,
                                           NodeState.STOPPED,
                                           NodeState.SUSPENDED,
                                           NodeState.PAUSED]:
-            raise serializers.ValidationError("Instance runtime state must be in one of offline states.")
+            raise serializers.ValidationError(_('Instance runtime state must be in one of offline states.'))
 
         return attrs
 
@@ -305,7 +306,7 @@ class VolumeImportSerializer(AWSImportSerializerMixin,
             region, volume = backend.find_volume(validated_data['backend_id'])
         except AWSBackendError:
             raise serializers.ValidationError(
-                {'backend_id': "Can't find volume with ID %s" % validated_data['backend_id']})
+                {'backend_id': _("Can't find volume with ID %s") % validated_data['backend_id']})
 
         instance_id = volume['instance_id']
         if instance_id:
@@ -313,7 +314,7 @@ class VolumeImportSerializer(AWSImportSerializerMixin,
                 instance = models.Instance.objects.get(backend_id=instance_id)
             except models.Instance.DoesNotExist:
                 raise serializers.ValidationError(
-                    "You must import instance with ID %s first" % instance_id)
+                    _('You must import instance with ID %s first') % instance_id)
             else:
                 validated_data['instance'] = instance
 
@@ -339,7 +340,7 @@ class VolumeAttachSerializer(structure_serializers.PermissionFieldFilteringMixin
     )
     device = serializers.CharField(
         max_length=128,
-        help_text='The device name for attachment. For example, use /dev/sd[f-p] for Linux instances.'
+        help_text=_('The device name for attachment. For example, use /dev/sd[f-p] for Linux instances.')
     )
 
     def get_fields(self):
@@ -358,16 +359,16 @@ class VolumeAttachSerializer(structure_serializers.PermissionFieldFilteringMixin
         instance = attrs['instance']
 
         if volume.instance:
-            raise serializers.ValidationError("Volume is already attached to instance.")
+            raise serializers.ValidationError(_('Volume is already attached to instance.'))
 
         if volume.region != instance.region:
-            raise serializers.ValidationError("Instance is not within the same region.")
+            raise serializers.ValidationError(_('Instance is not within the same region.'))
 
         if instance.runtime_state not in [NodeState.TERMINATED,
                                           NodeState.STOPPED,
                                           NodeState.SUSPENDED,
                                           NodeState.PAUSED]:
-            raise serializers.ValidationError("Instance runtime state must be in one of offline states.")
+            raise serializers.ValidationError(_('Instance runtime state must be in one of offline states.'))
 
         return attrs
 
