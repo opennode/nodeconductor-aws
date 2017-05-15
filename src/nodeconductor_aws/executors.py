@@ -99,7 +99,8 @@ class InstanceCreateExecutor(executors.CreateExecutor):
                 serialized_volume,
                 backend_method='pull_instance_volume',
                 success_runtime_state='inuse',
-            )
+            ),
+            core_tasks.BackendMethodTask().si(serialized_instance, 'pull_instance_public_ips'),
         )
 
     @classmethod
