@@ -1,125 +1,6 @@
-from celery import shared_task, chain
-from django.utils import timezone
+from nodeconductor.core.tasks import Task, ErrorStateTransitionTask
 
-from nodeconductor.core.tasks import save_error_message, transition, retry_if_false, Task, ErrorStateTransitionTask
-
-from .models import Instance, Volume
-from .backend import AWSBackendError
-
-
-@shared_task(name='nodeconductor_aws.destroy')
-@transition(Instance, 'begin_deleting')
-@save_error_message
-def destroy(instance_uuid, transition_entity=None):
-    instance = transition_entity
-    try:
-        backend = instance.get_backend()
-        backend.destroy_instance(instance)
-    except:
-        set_erred(instance_uuid)
-        raise
-    else:
-        instance.decrease_backend_quotas_usage()
-        instance.delete()
-
-
-@shared_task(name='nodeconductor_aws.start')
-def start(instance_uuid):
-    chain(
-        begin_starting.s(instance_uuid),
-        wait_for_instance_state.si(instance_uuid, 'RUNNING'),
-    ).apply_async(
-        link=set_online.si(instance_uuid),
-        link_error=set_erred.si(instance_uuid))
-
-
-@shared_task(name='nodeconductor_aws.stop')
-def stop(instance_uuid):
-    chain(
-        begin_stopping.s(instance_uuid),
-        wait_for_instance_state.si(instance_uuid, 'STOPPED'),
-    ).apply_async(
-        link=set_offline.si(instance_uuid),
-        link_error=set_erred.si(instance_uuid))
-
-
-@shared_task(name='nodeconductor_aws.restart')
-def restart(instance_uuid):
-    Instance.objects.get(uuid=instance_uuid)
-    chain(
-        begin_restarting.s(instance_uuid),
-        wait_for_instance_state.si(instance_uuid, 'RUNNING'),
-    ).apply_async(
-        link=set_online.si(instance_uuid),
-        link_error=set_erred.si(instance_uuid))
-
-
-@shared_task(max_retries=300, default_retry_delay=3)
-@retry_if_false
-def wait_for_instance_state(instance_uuid, state=''):
-    instance = Instance.objects.get(uuid=instance_uuid)
-    try:
-        backend = instance.get_backend()
-        manager = backend.get_manager(instance)
-        backend_instance = manager.get_node(instance.backend_id)
-    except AWSBackendError:
-        return False
-    return backend_instance.state == backend.State.fromstring(state)
-
-
-@shared_task
-@transition(Instance, 'begin_starting')
-@save_error_message
-def begin_starting(instance_uuid, transition_entity=None):
-    instance = transition_entity
-    backend = instance.get_backend()
-    backend.start_instance(instance)
-
-
-@shared_task
-@transition(Instance, 'begin_stopping')
-@save_error_message
-def begin_stopping(instance_uuid, transition_entity=None):
-    instance = transition_entity
-    backend = instance.get_backend()
-    backend.stop_instance(instance)
-
-
-@shared_task
-@transition(Instance, 'begin_restarting')
-@save_error_message
-def begin_restarting(instance_uuid, transition_entity=None):
-    instance = transition_entity
-    backend = instance.get_backend()
-    backend.reboot_instance(instance)
-
-
-@shared_task
-@transition(Instance, 'set_online')
-def set_online(instance_uuid, transition_entity=None):
-    instance = transition_entity
-    instance.start_time = timezone.now()
-
-    backend = instance.get_backend()
-    manager = backend.get_manager(instance)
-    backend_instance = manager.get_node(instance.backend_id)
-    instance.public_ips = backend_instance.public_ips
-
-    instance.save(update_fields=['start_time', 'public_ips'])
-
-
-@shared_task
-@transition(Instance, 'set_offline')
-def set_offline(instance_uuid, transition_entity=None):
-    instance = transition_entity
-    instance.start_time = None
-    instance.save(update_fields=['start_time'])
-
-
-@shared_task
-@transition(Instance, 'set_erred')
-def set_erred(instance_uuid, transition_entity=None):
-    pass
+from .models import Volume
 
 
 class RuntimeStateException(Exception):
@@ -142,6 +23,25 @@ class PollRuntimeStateTask(Task):
         elif instance.runtime_state == erred_state:
             raise RuntimeStateException(
                 'Instance %s (PK: %s) runtime state become erred: %s' % (instance, instance.pk, erred_state))
+
+
+class PollBackendCheckTask(Task):
+    max_retries = 60
+    default_retry_delay = 5
+
+    @classmethod
+    def get_description(cls, instance, backend_check_method, *args, **kwargs):
+        return 'Check instance "%s" with method "%s"' % (instance, backend_check_method)
+
+    def get_backend(self, instance):
+        return instance.get_backend()
+
+    def execute(self, instance, backend_check_method):
+        # backend_check_method should return True if object does not exist at backend
+        backend = self.get_backend(instance)
+        if not getattr(backend, backend_check_method)(instance):
+            self.retry()
+        return instance
 
 
 class SetInstanceErredTask(ErrorStateTransitionTask):

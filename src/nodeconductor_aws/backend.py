@@ -2,14 +2,13 @@ import logging
 import re
 
 from django.db import IntegrityError
-from django.utils import six, dateparse
+from django.utils import six, dateparse, timezone
 from libcloud.common.types import LibcloudError
 from libcloud.compute.drivers.ec2 import EC2NodeDriver, REGION_DETAILS, NAMESPACE, RESOURCE_EXTRA_ATTRIBUTES_MAP
 from libcloud.compute.types import NodeState, StorageVolumeState
 from libcloud.utils.xml import fixxpath
 
 from nodeconductor.core.models import SshPublicKey
-from nodeconductor.core.tasks import send_task
 from nodeconductor.core.utils import hours_in_month
 from nodeconductor.structure import ServiceBackend, ServiceBackendError
 
@@ -173,9 +172,11 @@ class AWSBackendError(ServiceBackendError):
     pass
 
 
-class AWSBaseBackend(ServiceBackend):
+class AWSBackend(ServiceBackend):
+    """ NodeConductor interface to AWS EC2 API.
+        https://libcloud.apache.org/
+    """
     State = NodeState
-
     Regions = (('us-east-1', 'US East (N. Virginia)'),
                ('us-west-2', 'US West (Oregon)'),
                ('us-west-1', 'US West (N. California)'),
@@ -189,7 +190,7 @@ class AWSBaseBackend(ServiceBackend):
                ('sa-east-1', 'South America (Sao Paulo)'))
 
     def __init__(self, settings):
-        super(AWSBaseBackend, self).__init__(settings)
+        super(AWSBackend, self).__init__(settings)
         self.settings = settings
 
     def _get_api(self, region='us-east-1'):
@@ -198,36 +199,6 @@ class AWSBaseBackend(ServiceBackend):
 
     def sync(self):
         self.pull_service_properties()
-
-    def destroy(self, instance, force=False):
-        if force:
-            instance.delete()
-            return
-
-        instance.schedule_deletion()
-        instance.save()
-        send_task('nodeconductor_aws', 'destroy')(instance.uuid.hex)
-
-    def start(self, instance):
-        instance.schedule_starting()
-        instance.save()
-        send_task('nodeconductor_aws', 'start')(instance.uuid.hex)
-
-    def stop(self, instance):
-        instance.schedule_stopping()
-        instance.save()
-        send_task('nodeconductor_aws', 'stop')(instance.uuid.hex)
-
-    def restart(self, instance):
-        instance.schedule_restarting()
-        instance.save()
-        send_task('nodeconductor_aws', 'restart')(instance.uuid.hex)
-
-
-class AWSBackend(AWSBaseBackend):
-    """ NodeConductor interface to AWS EC2 API.
-        https://libcloud.apache.org/
-    """
 
     def ping(self, raise_exception=False):
         try:
@@ -488,6 +459,9 @@ class AWSBackend(AWSBaseBackend):
         except Exception as e:
             logger.exception('Unable to reboot Amazon virtual machine %s', instance.uuid.hex)
             six.reraise(AWSBackendError, six.text_type(e))
+        else:
+            instance.start_time = timezone.now()
+            instance.save(update_fields=['start_time'])
 
     def stop_instance(self, instance):
         try:
@@ -496,6 +470,9 @@ class AWSBackend(AWSBaseBackend):
         except Exception as e:
             logger.exception('Unable to stop Amazon virtual machine %s', instance.uuid.hex)
             six.reraise(AWSBackendError, six.text_type(e))
+        else:
+            instance.start_time = None
+            instance.save(update_fields=['start_time'])
 
     def start_instance(self, instance):
         try:
@@ -504,6 +481,9 @@ class AWSBackend(AWSBaseBackend):
         except Exception as e:
             logger.exception('Unable to start Amazon virtual machine %s', instance.uuid.hex)
             six.reraise(AWSBackendError, six.text_type(e))
+        else:
+            instance.start_time = timezone.now()
+            instance.save(update_fields=['start_time'])
 
     def destroy_instance(self, instance):
         try:
@@ -512,6 +492,8 @@ class AWSBackend(AWSBaseBackend):
         except Exception as e:
             logger.exception('Unable to destroy Amazon virtual machine %s', instance.uuid.hex)
             six.reraise(AWSBackendError, six.text_type(e))
+        else:
+            instance.decrease_backend_quotas_usage()
 
     def resize_instance(self, instance, size_id):
         try:
@@ -532,6 +514,28 @@ class AWSBackend(AWSBaseBackend):
         if backend_vm.state != instance.runtime_state:
             instance.runtime_state = backend_vm.state
             instance.save(update_fields=['runtime_state'])
+
+    def pull_instance_public_ips(self, instance):
+        try:
+            manager = self.get_manager(instance)
+            backend_vm = manager.get_node(instance.backend_id)
+        except Exception as e:
+            logger.exception('Unable to pull public IPs for Amazon virtual machine %s', instance.uuid.hex)
+            six.reraise(AWSBackendError, six.text_type(e))
+
+        if backend_vm.public_ips != instance.public_ips:
+            instance.public_ips = backend_vm.public_ips
+            instance.save(update_fields=['public_ips'])
+
+    def is_instance_terminated(self, instance):
+        try:
+            manager = self.get_manager(instance)
+            backend_vm = manager.get_node(instance.backend_id)
+        except Exception as e:
+            logger.exception('Unable to check state for Amazon virtual machine %s', instance.uuid.hex)
+            six.reraise(AWSBackendError, six.text_type(e))
+
+        return backend_vm.state == self.State.TERMINATED
 
     def get_monthly_cost_estimate(self, instance):
         manager = self.get_manager(instance)
