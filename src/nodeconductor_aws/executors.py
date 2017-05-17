@@ -4,7 +4,7 @@ from nodeconductor.core import executors
 from nodeconductor.core import tasks as core_tasks
 from nodeconductor.core import utils as core_utils
 
-from .tasks import PollRuntimeStateTask, SetInstanceErredTask
+from .tasks import PollRuntimeStateTask, SetInstanceErredTask, PollBackendCheckTask
 
 
 class VolumeCreateExecutor(executors.CreateExecutor):
@@ -99,7 +99,8 @@ class InstanceCreateExecutor(executors.CreateExecutor):
                 serialized_volume,
                 backend_method='pull_instance_volume',
                 success_runtime_state='inuse',
-            )
+            ),
+            core_tasks.BackendMethodTask().si(serialized_instance, 'pull_instance_public_ips'),
         )
 
     @classmethod
@@ -171,6 +172,7 @@ class InstanceStartExecutor(executors.ActionExecutor):
                 success_state='running',
                 erred_state='erred',
             ),
+            core_tasks.BackendMethodTask().si(serialized_instance, 'pull_instance_public_ips'),
         )
 
 
@@ -195,9 +197,12 @@ class InstanceDeleteExecutor(executors.DeleteExecutor):
 
     @classmethod
     def get_task_signature(cls, instance, serialized_instance, **kwargs):
-        if instance.backend_id:
-            # TODO: check was instance really deleted in a separate task.
-            return core_tasks.BackendMethodTask().si(
-                serialized_instance, 'destroy_instance', state_transition='begin_deleting')
-        else:
+        if not instance.backend_id:
             return core_tasks.StateTransitionTask().si(serialized_instance, state_transition='begin_deleting')
+
+        return chain(
+            core_tasks.BackendMethodTask().si(
+                serialized_instance, 'destroy_instance', state_transition='begin_deleting'),
+            PollBackendCheckTask().si(
+                serialized_instance, backend_check_method='is_instance_terminated'),
+        )
