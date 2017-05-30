@@ -12,7 +12,7 @@ tests_require = [
 
 install_requires = [
     'apache-libcloud>=1.1.0',
-    'nodeconductor>0.134.0',
+    'nodeconductor>0.138.0',
 ]
 
 
@@ -21,8 +21,8 @@ setup(
     version='0.7.0',
     author='OpenNode Team',
     author_email='info@opennodecloud.com',
-    url='http://nodeconductor.com',
-    description='NodeConductor plugin for managing Amazon Web Services.',
+    url='http://waldur.com',
+    description='Waldur plugin for managing Amazon Web Services.',
     long_description=open('README.rst').read(),
     package_dir={'': 'src'},
     packages=find_packages('src', exclude=['*.tests', '*.tests.*', 'tests.*', 'tests']),
