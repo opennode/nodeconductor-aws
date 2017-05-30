@@ -1,10 +1,10 @@
 Name: nodeconductor-aws
-Summary: Amazon plugin for NodeConductor
+Summary: Amazon plugin for Waldur
 Group: Development/Libraries
 Version: 0.7.0
 Release: 1.el7
 License: MIT
-Url: http://nodeconductor.com
+Url: http://waldur.com
 Source0: %{name}-%{version}.tar.gz
 
 Requires: nodeconductor > 0.138.0
@@ -16,7 +16,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildRequires: python-setuptools
 
 %description
-Amazon Web Services plugin for NodeConductor.
+Amazon Web Services plugin for Waldur.
 
 %prep
 %setup -q -n %{name}-%{version}

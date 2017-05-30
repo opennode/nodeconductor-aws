@@ -1,4 +1,4 @@
-NodeConductor AWS
-=================
+Waldur AWS
+==========
 
-NodeConductor plugin for managing Amazon Web Services.
+Waldur plugin for managing Amazon Web Services.
