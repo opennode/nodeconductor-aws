@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-import jsonfield.fields
+import nodeconductor.core.fields
 
 
 def copy_external_ips(apps, schema_editor):
@@ -22,12 +22,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='instance',
             name='private_ips',
-            field=jsonfield.fields.JSONField(default=[], help_text='List of private IP addresses', blank=True),
+            field=nodeconductor.core.fields.JSONField(default=[], help_text='List of private IP addresses', blank=True),
         ),
         migrations.AddField(
             model_name='instance',
             name='public_ips',
-            field=jsonfield.fields.JSONField(default=[], help_text='List of public IP addresses', blank=True),
+            field=nodeconductor.core.fields.JSONField(default=[], help_text='List of public IP addresses', blank=True),
         ),
         migrations.RunPython(copy_external_ips),
         migrations.RemoveField(

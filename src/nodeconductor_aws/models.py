@@ -3,9 +3,9 @@ from __future__ import unicode_literals
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
-from jsonfield import JSONField
 from libcloud.compute.drivers.ec2 import REGION_DETAILS
 
+from nodeconductor.core.fields import JSONField
 from nodeconductor.core.models import RuntimeStateMixin
 from nodeconductor.quotas.fields import CounterQuotaField
 from nodeconductor.quotas.models import QuotaModelMixin
