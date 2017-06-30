@@ -7,7 +7,7 @@ License: MIT
 Url: http://waldur.com
 Source0: %{name}-%{version}.tar.gz
 
-Requires: nodeconductor > 0.139.0
+Requires: waldur-core > 0.139.0
 Requires: python-libcloud >= 1.1.0
 
 BuildArch: noarch
