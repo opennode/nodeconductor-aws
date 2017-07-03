@@ -1,4 +1,4 @@
-Name: nodeconductor-aws
+Name: waldur-aws
 Summary: Amazon plugin for Waldur
 Group: Development/Libraries
 Version: 0.9.1
@@ -14,6 +14,8 @@ BuildArch: noarch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 BuildRequires: python-setuptools
+
+Obsoletes: nodeconductor-aws
 
 %description
 Amazon Web Services plugin for Waldur.
