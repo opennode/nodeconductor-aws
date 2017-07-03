@@ -1,7 +1,7 @@
-Name: nodeconductor-aws
+Name: waldur-aws
 Summary: Amazon plugin for Waldur
 Group: Development/Libraries
-Version: 0.9.1
+Version: 0.9.2
 Release: 1.el7
 License: MIT
 Url: http://waldur.com
@@ -14,6 +14,8 @@ BuildArch: noarch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 BuildRequires: python-setuptools
+
+Obsoletes: nodeconductor-aws
 
 %description
 Amazon Web Services plugin for Waldur.
@@ -36,6 +38,9 @@ rm -rf %{buildroot}
 %{python_sitelib}/*
 
 %changelog
+* Mon Jul 3 2017 Jenkins <jenkins@opennodecloud.com> - 0.9.2-1.el7
+- New upstream release
+
 * Fri Jun 30 2017 Jenkins <jenkins@opennodecloud.com> - 0.9.1-1.el7
 - New upstream release
 
