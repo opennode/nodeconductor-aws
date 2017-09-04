@@ -11,7 +11,7 @@ tests_require = [
 ]
 
 install_requires = [
-    'apache-libcloud>=1.1.0',
+    'apache-libcloud>=1.1.0,<2.2.0',
     'nodeconductor>0.139.0',
 ]
 
