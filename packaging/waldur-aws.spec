@@ -1,7 +1,7 @@
 Name: waldur-aws
 Summary: Amazon plugin for Waldur
 Group: Development/Libraries
-Version: 0.9.3
+Version: 0.10.0
 Release: 1.el7
 License: MIT
 Url: http://waldur.com
@@ -9,6 +9,7 @@ Source0: %{name}-%{version}.tar.gz
 
 Requires: waldur-core > 0.139.0
 Requires: python-libcloud >= 1.1.0
+Requires: python-libcloud < 2.2.0
 
 BuildArch: noarch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
@@ -24,7 +25,7 @@ Amazon Web Services plugin for Waldur.
 %setup -q -n %{name}-%{version}
 
 %build
-python setup.py build
+%{__python} setup.py build
 
 %install
 rm -rf %{buildroot}
@@ -38,71 +39,11 @@ rm -rf %{buildroot}
 %{python_sitelib}/*
 
 %changelog
+* Mon Sep 4 2017 Jenkins <jenkins@opennodecloud.com> - 0.10.0-1.el7
+- New upstream release
+
 * Wed Jul 12 2017 Jenkins <jenkins@opennodecloud.com> - 0.9.3-1.el7
 - New upstream release
 
 * Mon Jul 3 2017 Jenkins <jenkins@opennodecloud.com> - 0.9.2-1.el7
 - New upstream release
-
-* Fri Jun 30 2017 Jenkins <jenkins@opennodecloud.com> - 0.9.1-1.el7
-- New upstream release
-
-* Fri Jun 2 2017 Jenkins <jenkins@opennodecloud.com> - 0.9.0-1.el7
-- New upstream release
-
-* Wed May 31 2017 Jenkins <jenkins@opennodecloud.com> - 0.8.0-1.el7
-- New upstream release
-
-* Wed May 17 2017 Jenkins <jenkins@opennodecloud.com> - 0.7.0-1.el7
-- New upstream release
-
-* Sun Apr 23 2017 Jenkins <jenkins@opennodecloud.com> - 0.6.0-1.el7
-- New upstream release
-
-* Fri Apr 14 2017 Jenkins <jenkins@opennodecloud.com> - 0.5.2-1.el7
-- New upstream release
-
-* Wed Apr 12 2017 Jenkins <jenkins@opennodecloud.com> - 0.5.1-1.el7
-- New upstream release
-
-* Tue Apr 11 2017 Jenkins <jenkins@opennodecloud.com> - 0.5.0-1.el7
-- New upstream release
-
-* Fri Apr 7 2017 Jenkins <jenkins@opennodecloud.com> - 0.4.3-1.el7
-- New upstream release
-
-* Sat Apr 1 2017 Jenkins <jenkins@opennodecloud.com> - 0.4.2-1.el7
-- New upstream release
-
-* Wed Mar 29 2017 Jenkins <jenkins@opennodecloud.com> - 0.4.1-1.el7
-- New upstream release
-
-* Thu Mar 2 2017 Jenkins <jenkins@opennodecloud.com> - 0.4.0-1.el7
-- New upstream release
-
-* Mon Feb 6 2017 Jenkins <jenkins@opennodecloud.com> - 0.3.0-1.el7
-- New upstream release
-
-* Thu Jan 26 2017 Jenkins <jenkins@opennodecloud.com> - 0.2.1-1.el7
-- New upstream release
-
-* Tue Jan 24 2017 Jenkins <jenkins@opennodecloud.com> - 0.2.0-1.el7
-- New upstream release
-
-* Tue Jan 17 2017 Jenkins <jenkins@opennodecloud.com> - 0.1.4-1.el7
-- New upstream release
-
-* Mon Dec 19 2016 Jenkins <jenkins@opennodecloud.com> - 0.1.3-1.el7
-- New upstream release
-
-* Mon Dec 19 2016 Jenkins <jenkins@opennodecloud.com> - 0.1.2-1.el7
-- New upstream release
-
-* Tue Dec 6 2016 Jenkins <jenkins@opennodecloud.com> - 0.1.1-1.el7
-- New upstream release
-
-* Tue Dec 6 2016 Jenkins <jenkins@opennodecloud.com> - 0.1.0-1.el7
-- New upstream release
-
-* Wed Nov 30 2016 Dmitri Tsumak <dmitri@opennodecloud.com> - 0.1.0-1.el7
-- Initial version of the package
