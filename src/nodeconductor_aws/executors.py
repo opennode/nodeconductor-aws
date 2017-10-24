@@ -3,7 +3,9 @@ from celery import chain
 from nodeconductor.core import executors
 from nodeconductor.core import tasks as core_tasks
 from nodeconductor.core import utils as core_utils
+from nodeconductor.structure import executors as structure_executors
 
+from . import models
 from .tasks import PollRuntimeStateTask, SetInstanceErredTask, PollBackendCheckTask
 
 
@@ -206,3 +208,10 @@ class InstanceDeleteExecutor(executors.DeleteExecutor):
             PollBackendCheckTask().si(
                 serialized_instance, backend_check_method='is_instance_terminated'),
         )
+
+
+class AWSCleanupExecutor(structure_executors.BaseCleanupExecutor):
+    executors = (
+        (models.Instance, InstanceDeleteExecutor),
+        (models.Volume, VolumeDeleteExecutor),
+    )

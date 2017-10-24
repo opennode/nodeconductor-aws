@@ -1,4 +1,4 @@
-Welcome to NodeConductor AWS plugin's documentation!
+Welcome to Waldur AWS plugin's documentation!
 ====================================================
 
 NodeConductor plugin for managing Amazon Web Services.
