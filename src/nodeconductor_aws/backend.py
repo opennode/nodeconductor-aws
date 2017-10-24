@@ -173,7 +173,7 @@ class AWSBackendError(ServiceBackendError):
 
 
 class AWSBackend(ServiceBackend):
-    """ NodeConductor interface to AWS EC2 API.
+    """ Waldur interface to AWS EC2 API.
         https://libcloud.apache.org/
     """
     State = NodeState
