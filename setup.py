@@ -18,7 +18,7 @@ install_requires = [
 
 setup(
     name='nodeconductor-aws',
-    version='0.10.0',
+    version='0.11.0',
     author='OpenNode Team',
     author_email='info@opennodecloud.com',
     url='http://waldur.com',
