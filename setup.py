@@ -12,13 +12,13 @@ tests_require = [
 
 install_requires = [
     'apache-libcloud>=1.1.0,<2.2.0',
-    'nodeconductor>0.139.0',
+    'nodeconductor>0.148.3',
 ]
 
 
 setup(
     name='nodeconductor-aws',
-    version='0.10.0',
+    version='0.11.0',
     author='OpenNode Team',
     author_email='info@opennodecloud.com',
     url='http://waldur.com',
