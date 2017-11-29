@@ -7,7 +7,7 @@ class AWSExtension(NodeConductorExtension):
 
     @staticmethod
     def django_app():
-        return 'nodeconductor_aws'
+        return 'waldur_aws'
 
     @staticmethod
     def rest_urls():

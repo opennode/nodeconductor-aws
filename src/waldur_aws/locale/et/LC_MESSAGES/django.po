@@ -16,139 +16,140 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/nodeconductor_aws/models.py:21
+#: src/waldur_aws/models.py:21
 msgid "AWS provider"
 msgstr ""
 
-#: src/nodeconductor_aws/models.py:22
+#: src/waldur_aws/models.py:22
 msgid "AWS providers"
 msgstr ""
 
-#: src/nodeconductor_aws/models.py:44
+#: src/waldur_aws/models.py:44
 msgid "AWS provider project link"
 msgstr ""
 
-#: src/nodeconductor_aws/models.py:45
+#: src/waldur_aws/models.py:45
 msgid "AWS provider project links"
 msgstr ""
 
-#: src/nodeconductor_aws/models.py:85
+#: src/waldur_aws/models.py:85
 msgid "Number of cores in a VM"
 msgstr ""
 
-#: src/nodeconductor_aws/models.py:86
+#: src/waldur_aws/models.py:86
 msgid "Memory size in MiB"
 msgstr ""
 
-#: src/nodeconductor_aws/models.py:87
+#: src/waldur_aws/models.py:87
 msgid "Disk size in MiB"
 msgstr ""
 
-#: src/nodeconductor_aws/models.py:88
+#: src/waldur_aws/models.py:88
 msgid "Hourly price rate"
 msgstr ""
 
-#: src/nodeconductor_aws/models.py:104
+#: src/waldur_aws/models.py:104
 msgid "List of public IP addresses"
 msgstr ""
 
-#: src/nodeconductor_aws/models.py:105
+#: src/waldur_aws/models.py:105
 msgid "List of private IP addresses"
 msgstr ""
 
-#: src/nodeconductor_aws/models.py:156
+#: src/waldur_aws/models.py:156
 msgid "General Purpose SSD"
 msgstr ""
 
-#: src/nodeconductor_aws/models.py:157
+#: src/waldur_aws/models.py:157
 msgid "Provisioned IOPS SSD"
 msgstr ""
 
-#: src/nodeconductor_aws/models.py:158
+#: src/waldur_aws/models.py:158
 msgid "Magnetic volumes"
 msgstr ""
 
-#: src/nodeconductor_aws/models.py:160
+#: src/waldur_aws/models.py:160
 msgid "Size of volume in gigabytes"
 msgstr ""
 
-#: src/nodeconductor_aws/serializers.py:37
+#: src/waldur_aws/serializers.py:37
 msgid "Regular expression to limit images list"
 msgstr ""
 
-#: src/nodeconductor_aws/serializers.py:142
+#: src/waldur_aws/serializers.py:142
 #, python-format
 msgid "Image is missing in region %s"
 msgstr ""
 
-#: src/nodeconductor_aws/serializers.py:145
+#: src/waldur_aws/serializers.py:145
 #, python-format
 msgid "Size is missing in region %s"
 msgstr ""
 
-#: src/nodeconductor_aws/serializers.py:189
+#: src/waldur_aws/serializers.py:189
 #, python-format
 msgid "Can't find instance with ID %s"
 msgstr ""
 
-#: src/nodeconductor_aws/serializers.py:228
+#: src/waldur_aws/serializers.py:228
 msgid "New size is not within the same region."
 msgstr ""
 
-#: src/nodeconductor_aws/serializers.py:231
+#: src/waldur_aws/serializers.py:231
 msgid "New size is the same as current."
 msgstr ""
 
-#: src/nodeconductor_aws/serializers.py:234
+#: src/waldur_aws/serializers.py:234
 msgid "New disk size should be greater than the previous value"
 msgstr ""
 
-#: src/nodeconductor_aws/serializers.py:240
-#: src/nodeconductor_aws/serializers.py:371
+#: src/waldur_aws/serializers.py:240
+#: src/waldur_aws/serializers.py:371
 msgid "Instance runtime state must be in one of offline states."
 msgstr ""
 
-#: src/nodeconductor_aws/serializers.py:309
+#: src/waldur_aws/serializers.py:309
 #, python-format
 msgid "Can't find volume with ID %s"
 msgstr ""
 
-#: src/nodeconductor_aws/serializers.py:317
+#: src/waldur_aws/serializers.py:317
 #, python-format
 msgid "You must import instance with ID %s first"
 msgstr ""
 
-#: src/nodeconductor_aws/serializers.py:343
+#: src/waldur_aws/serializers.py:343
 msgid ""
 "The device name for attachment. For example, use /dev/sd[f-p] for Linux "
 "instances."
 msgstr ""
 
-#: src/nodeconductor_aws/serializers.py:362
+#: src/waldur_aws/serializers.py:362
 msgid "Volume is already attached to instance."
 msgstr ""
 
-#: src/nodeconductor_aws/serializers.py:365
+#: src/waldur_aws/serializers.py:365
 msgid "Instance is not within the same region."
 msgstr ""
 
-#: src/nodeconductor_aws/views.py:80
+#: src/waldur_aws/views.py:80
 msgid "start was scheduled"
 msgstr ""
 
-#: src/nodeconductor_aws/views.py:90
+#: src/waldur_aws/views.py:90
 msgid "stop was scheduled"
 msgstr ""
 
-#: src/nodeconductor_aws/views.py:100
+#: src/waldur_aws/views.py:100
 msgid "restart was scheduled"
 msgstr ""
 
-#: src/nodeconductor_aws/views.py:115
+#: src/waldur_aws/views.py:115
 msgid "resize was scheduled"
 msgstr ""
 
-#: src/nodeconductor_aws/views.py:129
+#: src/waldur_aws/views.py:129
 msgid "Volume is already detached."
 msgstr ""
