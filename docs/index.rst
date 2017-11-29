@@ -31,7 +31,7 @@ Endpoints
 License
 -------
 
-NodeConductor AWS plugin is open-source under MIT license.
+Waldur AWS plugin is open-source under MIT license.
 
 
 Indices and tables
