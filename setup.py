@@ -17,8 +17,8 @@ install_requires = [
 
 
 setup(
-    name='nodeconductor-aws',
-    version='0.11.0',
+    name='waldur-aws',
+    version='0.11.1',
     author='OpenNode Team',
     author_email='info@opennodecloud.com',
     url='http://waldur.com',
@@ -35,7 +35,7 @@ setup(
     },
     entry_points={
         'nodeconductor_extensions': (
-            'nodeconductor_aws = nodeconductor_aws.extension:AWSExtension',
+            'waldur_aws = waldur_aws.extension:AWSExtension',
         ),
     },
     tests_require=tests_require,

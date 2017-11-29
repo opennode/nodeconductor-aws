@@ -708,7 +708,7 @@ class AWSBackend(ServiceBackend):
         }
 
     def _get_volume_state(self, state):
-        aws_to_nodeconductor = {
+        aws_to_waldur = {
             StorageVolumeState.AVAILABLE: models.Volume.States.OK,
             StorageVolumeState.INUSE: models.Volume.States.OK,
             StorageVolumeState.CREATING: models.Volume.States.CREATING,
@@ -716,7 +716,7 @@ class AWSBackend(ServiceBackend):
             StorageVolumeState.ATTACHING: models.Volume.States.UPDATING
         }
 
-        return aws_to_nodeconductor.get(state, models.Volume.States.ERRED)
+        return aws_to_waldur.get(state, models.Volume.States.ERRED)
 
     def get_volume(self, volume):
         try:

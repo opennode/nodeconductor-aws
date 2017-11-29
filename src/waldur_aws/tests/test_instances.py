@@ -1,7 +1,7 @@
 import mock
 from rest_framework import status, test
 
-from nodeconductor_aws import models
+from waldur_aws import models
 
 from . import factories, fixtures
 
@@ -12,7 +12,7 @@ class InstanceCreateTest(test.APITransactionTestCase):
         self.fixture = fixtures.AWSFixture()
         self.url = factories.InstanceFactory.get_list_url()
 
-    @mock.patch('nodeconductor_aws.executors.InstanceCreateExecutor.execute')
+    @mock.patch('waldur_aws.executors.InstanceCreateExecutor.execute')
     def test_instance_is_created(self, executor_mock):
         self.client.force_authenticate(self.fixture.owner)
         payload = self._get_valid_payload()
@@ -22,7 +22,7 @@ class InstanceCreateTest(test.APITransactionTestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         executor_mock.assert_called_once()
 
-    @mock.patch('nodeconductor_aws.executors.InstanceCreateExecutor.execute')
+    @mock.patch('waldur_aws.executors.InstanceCreateExecutor.execute')
     def test_spl_quotas_are_increased_when_instance_is_created(self, executor_mock):
         self.client.force_authenticate(self.fixture.owner)
         payload = self._get_valid_payload()
@@ -55,7 +55,7 @@ class InstanceResizeTest(test.APITransactionTestCase):
     def setUp(self):
         self.fixture = fixtures.AWSFixture()
 
-    @mock.patch('nodeconductor_aws.executors.InstanceResizeExecutor.execute')
+    @mock.patch('waldur_aws.executors.InstanceResizeExecutor.execute')
     def test_resize_increases_quotas_usage(self, executor):
         self.client.force_authenticate(self.fixture.owner)
         instance = self.fixture.instance
