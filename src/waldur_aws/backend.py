@@ -8,9 +8,9 @@ from libcloud.compute.drivers.ec2 import EC2NodeDriver, REGION_DETAILS, NAMESPAC
 from libcloud.compute.types import NodeState, StorageVolumeState
 from libcloud.utils.xml import fixxpath
 
-from nodeconductor.core.models import SshPublicKey
-from nodeconductor.core.utils import hours_in_month
-from nodeconductor.structure import ServiceBackend, ServiceBackendError
+from waldur_core.core.models import SshPublicKey
+from waldur_core.core.utils import hours_in_month
+from waldur_core.structure import ServiceBackend, ServiceBackendError
 
 from . import models
 
@@ -550,7 +550,7 @@ class AWSBackend(ServiceBackend):
         return size.price * hours_in_month()
 
     def to_instance(self, instance, region):
-        from nodeconductor.structure import SupportedServices
+        from waldur_core.structure import SupportedServices
 
         manager = self._get_api(region.backend_id)
         # TODO: Connect volume with instance
@@ -606,7 +606,7 @@ class AWSBackend(ServiceBackend):
             return manager.ex_import_keypair_from_string(ssh_key.name, ssh_key.public_key)
 
     def get_resources_for_import(self, resource_type=None):
-        from nodeconductor.structure import SupportedServices
+        from waldur_core.structure import SupportedServices
 
         resources = []
 
@@ -692,7 +692,7 @@ class AWSBackend(ServiceBackend):
             six.reraise(AWSBackendError, e)
 
     def to_volume(self, volume):
-        from nodeconductor.structure import SupportedServices
+        from waldur_core.structure import SupportedServices
 
         return {
             'id': volume.id,
