@@ -5,12 +5,12 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from libcloud.compute.drivers.ec2 import REGION_DETAILS
 
-from nodeconductor.core.fields import JSONField
-from nodeconductor.core.models import RuntimeStateMixin
-from nodeconductor.quotas.fields import CounterQuotaField
-from nodeconductor.quotas.models import QuotaModelMixin
-from nodeconductor.structure import models as structure_models
-from nodeconductor.structure.utils import get_coordinates_by_ip
+from waldur_core.core.fields import JSONField
+from waldur_core.core.models import RuntimeStateMixin
+from waldur_core.quotas.fields import CounterQuotaField
+from waldur_core.quotas.models import QuotaModelMixin
+from waldur_core.structure import models as structure_models
+from waldur_core.structure.utils import get_coordinates_by_ip
 
 
 class AWSService(structure_models.Service):

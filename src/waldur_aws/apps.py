@@ -8,7 +8,7 @@ class AWSConfig(AppConfig):
     is_public_service = True
 
     def ready(self):
-        from nodeconductor.structure import SupportedServices
+        from waldur_core.structure import SupportedServices
 
         from .backend import AWSBackend
         SupportedServices.register_backend(AWSBackend)

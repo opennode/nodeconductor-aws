@@ -1,8 +1,8 @@
 from django.utils.translation import gettext_lazy as _
 from rest_framework import decorators, viewsets, serializers as rf_serializers, response, status
 
-from nodeconductor.core import exceptions as core_exceptions, validators as core_validators
-from nodeconductor.structure import views as structure_views
+from waldur_core.core import exceptions as core_exceptions, validators as core_validators
+from waldur_core.structure import views as structure_views
 
 from . import filters, models, serializers, executors
 
@@ -16,7 +16,7 @@ class AmazonServiceViewSet(structure_views.BaseServiceViewSet):
         return {'resource_type': self.request.query_params.get('resource_type')}
 
     def get_serializer_class(self):
-        from nodeconductor.structure import SupportedServices
+        from waldur_core.structure import SupportedServices
 
         if self.request.method == 'POST':
             resource_type = self.request.data.get('type')
