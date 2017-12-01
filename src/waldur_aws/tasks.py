@@ -1,4 +1,4 @@
-from nodeconductor.core.tasks import Task, ErrorStateTransitionTask
+from waldur_core.core.tasks import Task, ErrorStateTransitionTask
 
 from .models import Volume
 

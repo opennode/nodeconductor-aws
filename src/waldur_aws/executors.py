@@ -1,9 +1,9 @@
 from celery import chain
 
-from nodeconductor.core import executors
-from nodeconductor.core import tasks as core_tasks
-from nodeconductor.core import utils as core_utils
-from nodeconductor.structure import executors as structure_executors
+from waldur_core.core import executors
+from waldur_core.core import tasks as core_tasks
+from waldur_core.core import utils as core_utils
+from waldur_core.structure import executors as structure_executors
 
 from . import models
 from .tasks import PollRuntimeStateTask, SetInstanceErredTask, PollBackendCheckTask

@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from django.core.management.base import BaseCommand, CommandError
 
-from nodeconductor.core.csv import UnicodeDictWriter
+from waldur_core.core.csv import UnicodeDictWriter
 
 from ... import models
 

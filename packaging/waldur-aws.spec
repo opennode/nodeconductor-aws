@@ -1,13 +1,13 @@
 Name: waldur-aws
 Summary: Amazon plugin for Waldur
 Group: Development/Libraries
-Version: 0.11.1
+Version: 0.11.2
 Release: 1.el7
 License: MIT
 Url: http://waldur.com
 Source0: %{name}-%{version}.tar.gz
 
-Requires: waldur-core > 0.148.3
+Requires: waldur-core >= 0.151.0
 Requires: python-libcloud >= 1.1.0
 Requires: python-libcloud < 2.2.0
 
@@ -39,6 +39,9 @@ rm -rf %{buildroot}
 %{python_sitelib}/*
 
 %changelog
+* Fri Dec 1 2017 Jenkins <jenkins@opennodecloud.com> - 0.11.2-1.el7
+- New upstream release
+
 * Wed Nov 29 2017 Jenkins <jenkins@opennodecloud.com> - 0.11.1-1.el7
 - New upstream release
 

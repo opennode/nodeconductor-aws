@@ -3,8 +3,8 @@ from django.utils.translation import ugettext_lazy as _
 from libcloud.compute.types import NodeState
 from rest_framework import serializers
 
-from nodeconductor.core import serializers as core_serializers
-from nodeconductor.structure import serializers as structure_serializers
+from waldur_core.core import serializers as core_serializers
+from waldur_core.structure import serializers as structure_serializers
 
 from . import models
 from .backend import AWSBackendError
@@ -87,7 +87,7 @@ class ServiceProjectLinkSerializer(structure_serializers.BaseServiceProjectLinkS
 
 class AWSImportSerializerMixin(object):
     def get_fields(self):
-        from nodeconductor.structure import SupportedServices
+        from waldur_core.structure import SupportedServices
         fields = super(AWSImportSerializerMixin, self).get_fields()
         resources = SupportedServices.get_service_resources(models.AWSService)
         choices = [SupportedServices.get_name_for_model(resource) for resource in resources]

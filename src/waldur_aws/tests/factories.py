@@ -3,7 +3,7 @@ import factory
 from factory import fuzzy
 from libcloud.compute.types import NodeState
 
-from nodeconductor.structure.tests import factories as structure_factories
+from waldur_core.structure.tests import factories as structure_factories
 
 from .. import models
 

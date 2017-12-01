@@ -12,13 +12,13 @@ tests_require = [
 
 install_requires = [
     'apache-libcloud>=1.1.0,<2.2.0',
-    'nodeconductor>0.148.3',
+    'waldur-core>=0.151.0',
 ]
 
 
 setup(
     name='waldur-aws',
-    version='0.11.1',
+    version='0.11.2',
     author='OpenNode Team',
     author_email='info@opennodecloud.com',
     url='http://waldur.com',
@@ -34,7 +34,7 @@ setup(
         'test': tests_require,
     },
     entry_points={
-        'nodeconductor_extensions': (
+        'waldur_extensions': (
             'waldur_aws = waldur_aws.extension:AWSExtension',
         ),
     },
