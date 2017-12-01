@@ -12,7 +12,7 @@ tests_require = [
 
 install_requires = [
     'apache-libcloud>=1.1.0,<2.2.0',
-    'waldur_core>0.148.3',
+    'waldur-core>=0.151.0',
 ]
 
 
