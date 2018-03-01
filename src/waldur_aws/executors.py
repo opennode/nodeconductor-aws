@@ -6,7 +6,7 @@ from waldur_core.core import utils as core_utils
 from waldur_core.structure import executors as structure_executors
 
 from . import models
-from .tasks import PollRuntimeStateTask, SetInstanceErredTask, PollBackendCheckTask
+from .tasks import SetInstanceErredTask
 
 
 class VolumeCreateExecutor(executors.CreateExecutor):
@@ -16,7 +16,7 @@ class VolumeCreateExecutor(executors.CreateExecutor):
         return chain(
             core_tasks.BackendMethodTask().si(
                 serialized_volume, 'create_volume', state_transition='begin_creating'),
-            PollRuntimeStateTask().si(
+            core_tasks.PollRuntimeStateTask().si(
                 serialized_volume,
                 backend_pull_method='pull_volume_runtime_state',
                 success_state='available',
@@ -43,7 +43,7 @@ class VolumeDetachExecutor(executors.ActionExecutor):
         return chain(
             core_tasks.BackendMethodTask().si(
                 serialized_volume, 'detach_volume', state_transition='begin_updating'),
-            PollRuntimeStateTask().si(
+            core_tasks.PollRuntimeStateTask().si(
                 serialized_volume,
                 backend_pull_method='pull_volume_runtime_state',
                 success_state='available',
@@ -59,7 +59,7 @@ class VolumeAttachExecutor(executors.ActionExecutor):
         return chain(
             core_tasks.BackendMethodTask().si(
                 serialized_volume, 'attach_volume', state_transition='begin_updating'),
-            PollRuntimeStateTask().si(
+            core_tasks.PollRuntimeStateTask().si(
                 serialized_volume,
                 backend_pull_method='pull_volume_runtime_state',
                 success_state='inuse',
@@ -91,7 +91,7 @@ class InstanceCreateExecutor(executors.CreateExecutor):
                 backend_method='create_instance',
                 state_transition='begin_creating',
                 **kwargs),
-            PollRuntimeStateTask().si(
+            core_tasks.PollRuntimeStateTask().si(
                 serialized_instance,
                 backend_pull_method='pull_instance_runtime_state',
                 success_state='running',
@@ -130,7 +130,7 @@ class InstanceResizeExecutor(executors.ActionExecutor):
                 state_transition='begin_updating',
                 size_id=size.backend_id
             ),
-            PollRuntimeStateTask().si(
+            core_tasks.PollRuntimeStateTask().si(
                 serialized_instance,
                 backend_pull_method='pull_instance_runtime_state',
                 success_state='stopped',
@@ -151,7 +151,7 @@ class InstanceStopExecutor(executors.ActionExecutor):
             core_tasks.BackendMethodTask().si(
                 serialized_instance, 'stop_instance', state_transition='begin_updating',
             ),
-            PollRuntimeStateTask().si(
+            core_tasks.PollRuntimeStateTask().si(
                 serialized_instance,
                 backend_pull_method='pull_instance_runtime_state',
                 success_state='stopped',
@@ -168,7 +168,7 @@ class InstanceStartExecutor(executors.ActionExecutor):
             core_tasks.BackendMethodTask().si(
                 serialized_instance, 'start_instance', state_transition='begin_updating',
             ),
-            PollRuntimeStateTask().si(
+            core_tasks.PollRuntimeStateTask().si(
                 serialized_instance,
                 backend_pull_method='pull_instance_runtime_state',
                 success_state='running',
@@ -186,7 +186,7 @@ class InstanceRestartExecutor(executors.ActionExecutor):
             core_tasks.BackendMethodTask().si(
                 serialized_instance, 'reboot_instance', state_transition='begin_updating',
             ),
-            PollRuntimeStateTask().si(
+            core_tasks.PollRuntimeStateTask().si(
                 serialized_instance,
                 backend_pull_method='pull_instance_runtime_state',
                 success_state='running',
@@ -205,7 +205,7 @@ class InstanceDeleteExecutor(executors.DeleteExecutor):
         return chain(
             core_tasks.BackendMethodTask().si(
                 serialized_instance, 'destroy_instance', state_transition='begin_deleting'),
-            PollBackendCheckTask().si(
+            core_tasks.PollBackendCheckTask().si(
                 serialized_instance, backend_check_method='is_instance_terminated'),
         )
 
