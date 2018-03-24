@@ -18,7 +18,7 @@ install_requires = [
 
 setup(
     name='waldur-aws',
-    version='0.11.2',
+    version='0.11.3',
     author='OpenNode Team',
     author_email='info@opennodecloud.com',
     url='http://waldur.com',
