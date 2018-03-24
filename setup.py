@@ -12,13 +12,13 @@ tests_require = [
 
 install_requires = [
     'apache-libcloud>=1.1.0,<2.2.0',
-    'waldur-core>=0.151.0',
+    'waldur-core>=0.156.2',
 ]
 
 
 setup(
     name='waldur-aws',
-    version='0.11.2',
+    version='0.11.3',
     author='OpenNode Team',
     author_email='info@opennodecloud.com',
     url='http://waldur.com',
