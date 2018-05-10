@@ -214,7 +214,7 @@ class AWSBackend(ServiceBackend):
         try:
             manager = self.get_manager(instance)
             manager.get_node(instance.backend_id)
-        except:
+        except LibcloudError:
             return False
         else:
             return True
@@ -362,11 +362,12 @@ class AWSBackend(ServiceBackend):
                     yield region, image
 
     def update_images(self):
-        get_images = lambda manager, owner: {
-            i.id: i.extra['description']
-            for i in manager.list_images(
-                ex_owner=owner,
-                ex_filters={'virtualization-type': 'hvm', 'image-type': 'machine'})}
+        def get_images(manager, owner):
+            return {i.id: i.extra['description']
+                    for i in manager.list_images(
+                        ex_owner=owner,
+                        ex_filters={'virtualization-type': 'hvm', 'image-type': 'machine'})
+                    }
 
         for region in models.Region.objects.all():
             images = region.image_set.all()
@@ -641,8 +642,7 @@ class AWSBackend(ServiceBackend):
             manager = self._get_api(region.backend_id)
             try:
                 instance = manager.get_node(instance_id)
-            # XXX: it is not a good idea to except all errors here. Manager-specific error should be excepted.
-            except:  # nosec
+            except LibcloudError:
                 # Instance not found
                 pass
             else:
@@ -654,8 +654,7 @@ class AWSBackend(ServiceBackend):
             manager = self._get_api(region.backend_id)
             try:
                 volume = manager.get_volume(volume_id)
-            # XXX: it is not a good idea to except all errors here. Manager-specific error should be excepted.
-            except:  # nosec
+            except LibcloudError:
                 # Volume not found
                 pass
             else:
