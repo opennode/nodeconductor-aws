@@ -104,7 +104,10 @@ class InstanceSerializer(structure_serializers.VirtualMachineSerializer):
 
     service_project_link = serializers.HyperlinkedRelatedField(
         view_name='aws-spl-detail',
-        queryset=models.AWSServiceProjectLink.objects.all())
+        queryset=models.AWSServiceProjectLink.objects.all(),
+        allow_null=True,
+        required=False,
+    )
 
     region = serializers.HyperlinkedRelatedField(
         view_name='aws-region-detail',
@@ -134,6 +137,8 @@ class InstanceSerializer(structure_serializers.VirtualMachineSerializer):
         )
 
     def validate(self, attrs):
+        attrs = super(InstanceSerializer, self).validate(attrs)
+
         region = attrs['region']
         image = attrs['image']
         size = attrs['size']
@@ -270,7 +275,10 @@ class VolumeSerializer(structure_serializers.BaseResourceSerializer):
 
     service_project_link = serializers.HyperlinkedRelatedField(
         view_name='aws-spl-detail',
-        queryset=models.AWSServiceProjectLink.objects.all())
+        queryset=models.AWSServiceProjectLink.objects.all(),
+        allow_null=True,
+        required=False,
+    )
 
     region = serializers.HyperlinkedRelatedField(
         view_name='aws-region-detail',
