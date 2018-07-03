@@ -101,8 +101,8 @@ class Instance(structure_models.VirtualMachine):
         AWSServiceProjectLink, related_name='instances', on_delete=models.PROTECT)
 
     region = models.ForeignKey(Region)
-    public_ips = JSONField(default=[], help_text=_('List of public IP addresses'), blank=True)
-    private_ips = JSONField(default=[], help_text=_('List of private IP addresses'), blank=True)
+    public_ips = JSONField(default=list, help_text=_('List of public IP addresses'), blank=True)
+    private_ips = JSONField(default=list, help_text=_('List of private IP addresses'), blank=True)
     size_backend_id = models.CharField(max_length=150, blank=True)
 
     def increase_backend_quotas_usage(self, validate=True):
